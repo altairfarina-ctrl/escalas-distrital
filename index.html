@@ -1,0 +1,2699 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AGENDA DISTRITAL – Distrito Ivailândia – ANP</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#05070F; --panel:#0A1020; --ink:#fff; --muted:#B6C0D8; --dim:#8791AB;
+  --orange:#FF8C1A; --blue:#2F8CFF; --purple:#8B5CF6;
+  --red:#FF5C5C; --yellow:#FFC93C; --green:#3DDC97;
+  --hl:#12203F;          /* reservado: as células do calendário são todas iguais (06/10) */
+  --hl-hi:#182B52;       /* reservado (mesmo tom, mais claro) */
+  --hl-head:#8B5CF6;     /* fundo MAIS DESTACADO só no cabeçalho: DOM, QUA e SÁB (roxo) */
+  /* --- superfícies / estrutura (tema escuro = padrão) --- */
+  --topbar:rgba(10,16,32,.92); --surface:rgba(10,16,32,.86); --surface-2:rgba(10,16,32,.6);
+  --field:#080d1a; --head-bg:#0d1530; --cell:#070B14; --cell-hover:rgba(47,140,255,.06);
+  --overlay:rgba(3,5,12,.86); --off:#454f6b;
+  --chip:rgba(255,255,255,.05); --chip-b:rgba(255,255,255,.24);
+  --border:rgba(255,255,255,.14); --border-2:rgba(255,255,255,.24); --line:rgba(255,255,255,.08);
+  --day-name:#2F8CFF; --glow-b:rgba(47,140,255,.14); --glow-p:rgba(139,92,246,.14);
+  --f-display:'Sora',system-ui,'Segoe UI',Roboto,sans-serif;
+  --f-body:'Nunito Sans',system-ui,'Segoe UI',Roboto,sans-serif;
+}
+
+/* ===== TEMA CLARO (☀) – aplicado quando data-theme="light" ===== */
+:root[data-theme=light]{
+  color-scheme:light;
+  --bg:#EEF2F8; --panel:#ffffff; --ink:#121A2C; --muted:#4B5568; --dim:#6B7686;
+  --orange:#B4560B; --blue:#1D6FD1; --purple:#6D3FD1; --green:#18875E; --red:#C93B3B;
+  --topbar:rgba(255,255,255,.95); --surface:rgba(255,255,255,.94); --surface-2:#ffffff;
+  --field:#ffffff; --head-bg:#E4EAF5; --cell:#ffffff; --cell-hover:rgba(47,140,255,.10);
+  --overlay:rgba(224,230,242,.9); --off:#9AA4B8;
+  --chip:rgba(16,26,48,.05); --chip-b:rgba(16,26,48,.26);
+  --border:rgba(16,26,48,.16); --border-2:rgba(16,26,48,.28); --line:rgba(16,26,48,.12);
+  --day-name:#14477D; --glow-b:rgba(47,140,255,.10); --glow-p:rgba(139,92,246,.07);
+}
+:root[data-theme=light] .btn.del{color:#C93B3B}
+:root[data-theme=light] .close{border-color:rgba(16,26,48,.3)}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+ background:
+  radial-gradient(900px 520px at 85% -5%,var(--glow-b),transparent 62%),
+  radial-gradient(760px 520px at -5% 100%,var(--glow-p),transparent 62%),
+  var(--bg);}
+button{font-family:var(--f-body)}
+.kick{font:700 14px var(--f-display);color:var(--orange);letter-spacing:.06em;text-transform:uppercase}
+
+/* ===== topbar ===== */
+.topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 24px;
+ border-bottom:1px solid var(--border);background:var(--topbar);position:sticky;top:0;z-index:30}
+.brand{font:800 21px/1.12 var(--f-display);white-space:nowrap;letter-spacing:.02em;
+ text-shadow:0 0 22px rgba(47,140,255,.35)}
+.brand small{display:block;font:700 11.5px var(--f-body);color:var(--orange);letter-spacing:.12em;text-transform:uppercase}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{padding:8px 15px;border-radius:999px;border:2px solid transparent;background:transparent;color:var(--muted);
+ font:700 13.5px var(--f-display);cursor:pointer;transition:.15s}
+.tab:hover{color:var(--ink);background:var(--chip)}
+.tab.on{border-color:var(--blue);background:rgba(47,140,255,.16);color:var(--ink)}
+.grow{flex:1}
+.ctl{min-height:40px;padding:7px 13px;border-radius:12px;border:1px solid var(--border-2);
+ background:var(--field);color:var(--ink);font:600 15px var(--f-body);cursor:pointer}
+.ctl:focus{outline:2px solid var(--blue)}
+.btn{display:inline-flex;align-items:center;gap:7px;min-height:38px;padding:7px 18px;border-radius:999px;cursor:pointer;
+ border:2px solid var(--orange);background:rgba(255,140,26,.1);color:var(--ink);font:700 14px var(--f-display)}
+.btn:hover{background:rgba(255,140,26,.26)}
+.btn.azul{border-color:var(--blue);background:rgba(47,140,255,.1)}
+.btn.azul:hover{background:rgba(47,140,255,.26)}
+.btn.roxo{border-color:var(--purple);background:rgba(139,92,246,.12)}
+.btn.roxo:hover{background:rgba(139,92,246,.28)}
+.btn.mini{min-height:32px;padding:4px 13px;font-size:12.5px}
+.badge{display:inline-flex;align-items:center;gap:7px;padding:7px 15px;border-radius:999px;
+ border:1.5px solid var(--chip-b);background:var(--chip);color:var(--muted);font:700 15px var(--f-body);white-space:nowrap}
+.badge b{color:var(--ink)}
+
+/* ===== caixas de seleção: agendas que o líder lidera ===== */
+.depck{max-height:176px;overflow:auto;border:1px solid var(--border-2);border-radius:12px;background:var(--field);padding:5px}
+.ckrow{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:9px;cursor:pointer;
+ font:600 14px var(--f-body);color:var(--ink)}
+.ckrow:hover{background:var(--chip)}
+.ckrow input{width:17px;height:17px;accent-color:var(--blue);cursor:pointer;flex:0 0 auto}
+.ckrow .dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
+.ckrow .vazio{color:var(--dim);font-weight:600;font-size:13px}
+
+/* ===== modal da escala: aviso de em qual agenda ela vai cair ===== */
+.evhint{margin:-4px 0 10px;padding:9px 11px;border-radius:11px;font:600 13px/1.5 var(--f-body);color:var(--ink);
+ background:rgba(90,150,255,.12);border:1px solid rgba(90,150,255,.35)}
+.evhint b{color:var(--blue)}
+
+/* ===== layout ===== */
+.layout{display:grid;grid-template-columns:296px 1fr;gap:16px;padding:16px 24px 30px;align-items:start;max-width:1900px;margin:0 auto}
+body.semSide .layout{grid-template-columns:1fr}      /* sem sidebar o conteúdo ocupa tudo */
+.side{border:2px solid var(--border);border-radius:22px;background:var(--surface);padding:15px;position:sticky;top:82px}
+.side h3{font:700 13px var(--f-display);color:var(--blue);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 7px}
+.side h3:first-child{margin-top:0}
+.srow{display:flex;gap:8px;align-items:center}
+.srow .ctl{flex:1}
+.nbtn{width:38px;min-height:38px;border-radius:10px;border:1px solid var(--border-2);background:var(--field);
+ color:var(--ink);font-size:18px;cursor:pointer;line-height:1}
+.nbtn:hover{border-color:var(--blue)}
+#mini{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:10px}
+#mini .mh{font:700 11px var(--f-display);color:var(--dim);text-align:center;padding:3px 0}
+#mini button{border:0;background:transparent;color:var(--muted);font:600 12.5px var(--f-body);padding:5px 0;border-radius:999px;cursor:pointer}
+#mini button:hover{background:rgba(47,140,255,.18);color:var(--ink)}
+#mini button.mut{color:var(--off)}
+#mini button.today{background:var(--blue);color:#fff;font-weight:800}
+.ag{display:flex;align-items:center;gap:9px;padding:7px 7px;border-radius:10px;cursor:pointer;user-select:none}
+.ag:hover{background:rgba(47,140,255,.08)}
+.ag .box{width:17px;height:17px;border-radius:5px;border:2px solid var(--c);flex:none;display:grid;place-items:center}
+.ag.on .box{background:var(--c)}
+.ag.on .box::after{content:'✓';color:#05070F;font-size:11px;font-weight:900}
+.ag span{font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sw{display:flex;align-items:center;gap:9px;padding:8px 7px;cursor:pointer;user-select:none;color:var(--muted);font-size:14px}
+.sw:hover{background:rgba(47,140,255,.08);border-radius:10px}
+.sw input{width:17px;height:17px;accent-color:var(--blue)}
+.quick{display:flex;gap:7px;margin:6px 0 2px}
+.quick button{flex:1;padding:6px;border-radius:9px;border:1px solid var(--chip-b);background:var(--chip);
+ color:var(--muted);font:700 12px var(--f-body);cursor:pointer}
+.quick button:hover{color:var(--ink);border-color:var(--blue)}
+.ghead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;padding:0 7px 4px}
+.ghead span{font:700 12px var(--f-display);color:var(--purple);letter-spacing:.05em;text-transform:uppercase}
+.gtog{border:1.5px solid var(--chip-b);background:var(--chip);color:var(--muted);
+ border-radius:999px;padding:3px 10px;font:700 11.5px var(--f-body);cursor:pointer}
+.gtog:hover{color:var(--ink);border-color:var(--purple)}
+.gtog.on{background:rgba(61,220,151,.14);border-color:var(--green);color:var(--green)}
+.deprow{display:grid;grid-template-columns:46px 1fr 84px 140px 40px;gap:8px;align-items:center;margin-bottom:8px}
+.deprow .dcolor{width:46px;height:40px;padding:2px;border:1.5px solid var(--c);border-radius:10px;background:var(--field);cursor:pointer}
+.deprow .dname{min-height:40px;padding:8px 11px;border-radius:11px;border:1px solid var(--border-2);
+ background:var(--field);color:var(--ink);font:600 14.5px var(--f-body)}
+.deprow .dsig{min-height:40px;padding:8px 9px;border-radius:11px;border:1px solid var(--border-2);
+ background:var(--field);color:var(--orange);font:700 13.5px var(--f-display);text-transform:uppercase;text-align:center}
+.deprow .dtype{min-height:40px;padding:7px 9px;border-radius:11px;border:1px solid var(--border-2);
+ background:var(--field);color:var(--ink);font:600 13.5px var(--f-body)}
+.deprow .dname:focus,.deprow .dtype:focus,.deprow .dsig:focus{outline:2px solid var(--blue)}
+.deprow.trav{opacity:.9}
+.deprow.trav input,.deprow.trav select{opacity:.6;cursor:not-allowed}
+.deprow .travico{display:flex;align-items:center;justify-content:center;height:40px;font-size:16px;opacity:.75}
+.delmini{width:40px;height:40px;border-radius:11px;border:1.5px solid rgba(255,92,92,.5);background:rgba(255,92,92,.1);
+ color:var(--red);font-size:15px;cursor:pointer}
+.delmini:hover{background:rgba(255,92,92,.28)}
+.me{margin-top:16px;padding:11px 12px;border-radius:14px;border:1.5px solid var(--border);background:rgba(47,140,255,.07)}
+/* lista de usuários (modal admin) */
+.urow{padding:9px 11px;border:1px solid var(--border);border-radius:12px;background:rgba(47,140,255,.06);margin-bottom:7px;font:600 14px var(--f-body);color:var(--ink)}
+.urow .uid{color:var(--blue);font-weight:800;margin-left:4px}
+.urow .utag{float:right;font:800 11px var(--f-display);letter-spacing:.04em;text-transform:uppercase;color:#05070F;background:var(--yellow);padding:2.5px 8px;border-radius:999px}
+.urow .usub{color:var(--muted);font-size:12.5px;font-weight:600;margin-top:3px}
+/* lista de igrejas (modal admin – alterar/excluir) */
+.chlisthead{font:700 12.5px var(--f-display);color:var(--blue);letter-spacing:.05em;text-transform:uppercase;margin-bottom:7px}
+.chrow{display:flex;align-items:center;gap:9px}
+.chrow .chnm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.chrow .chnow{font:800 10.5px var(--f-display);letter-spacing:.05em;text-transform:uppercase;color:#05070F;
+  background:var(--green);padding:2px 7px;border-radius:999px;margin-left:7px;vertical-align:middle}
+.chrow .btn{flex:none}
+.chrow .utag{float:none;display:inline-block;margin-left:7px;vertical-align:middle}
+.btn.del{border-color:var(--red);color:#FF9A9A;background:rgba(255,92,92,.1)}
+.btn.del:hover{background:rgba(255,92,92,.26)}
+.me .who{font:700 14.5px var(--f-display)}
+.me .perm{color:var(--green);font-size:13px;font-weight:700;margin-top:2px}
+.me .perm.view{color:var(--dim)}
+
+/* ===== toolbar ===== */
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.toolbar h1{font:800 clamp(21px,3vw,30px) var(--f-display);margin:0;text-shadow:0 0 26px rgba(47,140,255,.35)}
+.navi{display:flex;gap:6px}
+.info{padding:8px 15px;border-radius:12px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;width:100%}
+.info.view{background:rgba(135,145,171,.12);border:1.5px solid rgba(135,145,171,.4);color:var(--muted)}
+.info.edit{background:rgba(61,220,151,.1);border:1.5px solid rgba(61,220,151,.4);color:var(--green)}
+
+/* ===== calendar ===== */
+.gcal{border:2px solid var(--border);border-radius:22px;overflow:hidden;background:var(--surface-2)}
+.scrollx{overflow-x:auto}
+.wdays,.grid{display:grid;grid-template-columns:1.32fr .92fr .92fr 1.32fr .92fr .92fr 1.32fr;min-width:760px}
+.wdays{background:var(--head-bg);border-bottom:2px solid var(--border)}
+.wdays div{padding:9px 10px;font:700 13px var(--f-display);color:var(--day-name);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;overflow:hidden;
+ border-right:1px solid var(--line)}
+.wdays div:last-child{border-right:0}
+.wdays div.sat{background:var(--hl-head);color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.45)}
+.wdays div.sun{background:var(--hl-head);color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.45)}
+.wdays div.qua{background:var(--hl-head);color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.45)}
+.cell{min-height:124px;padding:6px 7px 8px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+ cursor:pointer;position:relative;transition:background .12s;background:var(--cell)}
+.cell:hover{background:var(--cell-hover)}
+.cell.off .dnum{color:var(--off)}
+.dnum{font:700 13.5px var(--f-display);color:var(--muted);margin-bottom:3px;display:inline-flex;align-items:center;justify-content:center;
+ min-width:24px;height:24px;padding:0 5px;border-radius:999px}
+.dnum.today{background:var(--blue);color:#fff;box-shadow:0 0 14px rgba(47,140,255,.6)}
+.pill{display:block;width:100%;margin-top:4px;padding:3px 8px;border:0;border-radius:7px;cursor:pointer;text-align:left;
+ font:700 12.5px var(--f-body);color:#05070F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ animation:pop .18s ease}
+.pill:hover{filter:brightness(1.13);transform:translateX(1px)}
+@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+.cell.dropok{outline:2.5px dashed var(--green);outline-offset:-3px;background:rgba(61,220,151,.10)}
+.cell.flash{outline:2.5px solid var(--blue);outline-offset:-3px;background:rgba(47,140,255,.14)}
+/* todas as células têm o MESMO fundo – sem destaque por coluna (DOM/QUA/SÁB só diferem no cabeçalho) */
+.grid>.cell,.grid>.cell.sat,.grid>.cell.sun,.grid>.cell.qua,.grid>.cell.off{background:var(--cell)}
+.grid>.cell:hover,.grid>.cell.sat:hover,.grid>.cell.sun:hover,.grid>.cell.qua:hover{background:var(--cell-hover)}
+.grid>.cell.dropok{background:rgba(61,220,151,.10)}
+.pill[draggable=true]{cursor:grab}
+.pill.ghost{opacity:.35}
+.hintday{color:#3d465e;font-size:16px;position:absolute;right:8px;top:6px;font-weight:800;opacity:0;transition:.15s}
+.cell:hover .hintday{opacity:1}
+body.hidesmall .small{display:none!important}
+body.hidesmall .wdays,body.hidesmall .grid{grid-template-columns:1.22fr 1.22fr 1.22fr;min-width:420px}
+
+/* ===== overlays / modal ===== */
+.ovl{display:none;position:fixed;inset:0;background:var(--overlay);z-index:60;padding:24px;overflow:auto;backdrop-filter:blur(6px)}
+.ovl.on{display:block}
+.modal{max-width:520px;margin:8vh auto;border:2px solid var(--purple);border-radius:26px;background:var(--panel);
+ padding:24px;box-shadow:0 0 46px rgba(139,92,246,.45)}
+.modal h3{font:800 24px var(--f-display);margin:0 0 4px;color:var(--purple)}
+.modal .sub{color:var(--muted);margin:0 0 18px;font-size:14.5px}
+.modal .f{margin-bottom:13px}
+.modal .f label{display:block;font:700 12.5px var(--f-display);color:var(--blue);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px}
+.modal .f input,.modal .f select{width:100%;min-height:46px;padding:10px 13px;border-radius:13px;border:1px solid var(--border-2);
+ background:var(--field);color:var(--ink);font:400 16px var(--f-body)}
+.modal .f input:focus,.modal .f select:focus{outline:2px solid var(--blue)}
+.evbtns{display:flex;gap:10px;margin-top:18px}
+.close{float:right;cursor:pointer;border:2px solid var(--chip-b);background:transparent;color:var(--ink);
+ border-radius:999px;width:40px;height:40px;font-size:17px}
+.close:hover{border-color:var(--ink)}
+/* church chooser */
+.ch\boxed{max-width:940px;margin:5vh auto;text-align:center}
+.chbox h1{font:800 clamp(26px,5vw,40px)/1.1 var(--f-display);margin:10px 0 6px;text-shadow:0 0 30px rgba(47,140,255,.35)}
+.chbox .lead{color:var(--muted);margin:0 auto 26px}
+.chgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.chcard{border:2px solid var(--border);border-radius:20px;background:var(--surface);padding:22px 16px;cursor:pointer;
+ text-align:center;transition:.16s}
+.chcard:hover{border-color:var(--orange);transform:translateY(-3px);box-shadow:0 8px 30px rgba(255,140,26,.22)}
+.chcard .ic{font-size:34px}
+.chcard .nm{font:700 16.5px var(--f-display);margin-top:9px}
+.chcard .sub{color:var(--dim);font-size:13px;margin-top:3px}
+.chfoot{margin-top:26px;color:var(--dim);font-size:14px;display:flex;gap:12px;justify-content:center;align-items:center;flex-wrap:wrap}
+/* toast */
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,90px);background:#0d1530;color:#fff;z-index:99;
+ padding:12px 24px;border-radius:999px;border:2px solid var(--blue);font:700 14.5px var(--f-display);
+ box-shadow:0 8px 30px rgba(47,140,255,.4);opacity:0;transition:.25s;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+footer{max-width:1900px;margin:0 auto;padding:18px 24px 34px;border-top:1px solid var(--border);color:var(--dim);font-size:13.5px; display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+footer a{color:#2F8CFF;text-decoration:none;font-weight:600}
+footer a:hover,footer a:focus{text-decoration:underline}
+.print-head{display:none}
+
+/* ===== print / PDF ===== */
+@media print{
+  @page{size:A4 landscape;margin:9mm}
+  :root{color-scheme:light;--ink:#111;--muted:#444;--dim:#666;--panel:#fff;--surface:#fff;--surface-2:#fff;
+        --field:#fff;--cell:#fff;--border:#999;--border-2:#999;--line:#ccc;--head-bg:#eef2f8;--day-name:#14477d;--off:#888}
+  body{background:#fff!important;color:#111}
+  .topbar,.side,.toolbar,.ovl,.toast,footer,.hintday{display:none!important}
+  .print-head{display:block!important;margin-bottom:8px}
+  .print-head h2{font:800 19px var(--f-display);margin:0;color:#111}
+  .print-head .pl{color:#444;font-size:13px;margin-top:2px}
+  .layout{display:block;padding:0}
+  .gcal{border:1px solid #999;border-radius:0;background:#fff}
+  .scrollx{overflow:visible}
+  .wdays,.grid{min-width:0!important;grid-template-columns:1.32fr .92fr .92fr 1.32fr .92fr .92fr 1.32fr!important}
+  .wdays{background:#eef2f8;border-color:#999}
+  .wdays div{color:#14477d}
+  .wdays div.sat,.wdays div.sun,.wdays div.qua{background:#dce7f7!important;color:#14477d!important;text-shadow:none!important}
+  .small{display:block!important}
+  .cell{min-height:92px;border-color:#ccc!important;background:#fff!important;page-break-inside:avoid}
+  .dnum{color:#333}
+  .dnum.today{background:#14477d!important;color:#fff!important;box-shadow:none}
+  .pill{background:#f1f4fa!important;color:#111!important;border-left:6px solid var(--c);border-radius:4px;
+   font-size:11.5px;padding:2px 6px;filter:none!important;transform:none!important}
+  .oftool,#ofInfo,#pgInfo,.ofpdf,.pgacts{display:none!important}
+  .ofwrap{border:1px solid #999;border-radius:0;background:#fff}
+  .oftab th{background:#eef2f8!important;color:#14477d!important;position:static;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .oftab td{border-color:#ccc!important;color:#111!important}
+  .oftab tbody tr:nth-child(even){background:#f6f8fc!important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .oftab tr{page-break-inside:avoid}
+  .oftab .cAcoes{display:none!important}
+  .pgcard{border:none;border-radius:0;margin:0 0 16px;overflow:visible;page-break-inside:avoid}
+  .pghead{background:#eef2f8!important;border-bottom:2px solid #999;padding:8px 14px}
+  .pghead .pgttl b,.pghead .pgttl{color:#111!important}
+  .pghead .pgq{color:#14477d!important}
+  .pghead .pgo{color:#444!important}
+  .oftab tbody tr.pgblk td{background:#14477d!important;color:#fff!important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+/* ===== lista de oficiais ===== */
+.oftool{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.oftool input.ctl{flex:1;min-width:240px}
+.ofwrap{border:1px solid var(--border);border-radius:18px;background:var(--surface);overflow:hidden}
+.oftab{width:100%;border-collapse:collapse;font-size:14.5px}
+.oftab th{background:var(--head-bg);color:var(--day-name);font:800 12.5px var(--f-display);letter-spacing:.06em;
+  text-transform:uppercase;text-align:left;padding:11px 14px;border-bottom:2px solid var(--border)}
+.oftab td{padding:9px 14px;border-bottom:1px solid var(--line);color:var(--ink);vertical-align:top}
+.oftab tbody tr:nth-child(even){background:rgba(135,145,171,.07)}
+.oftab tbody tr:hover{background:rgba(47,140,255,.10)}
+.oftab .cDep{width:26%;font-weight:800;color:var(--purple)}
+.oftab .cCar{width:28%;font-weight:600;color:var(--muted)}
+.oftab .cResp{font-weight:600}
+.oftab .cAcoes{width:112px;text-align:right;white-space:nowrap}
+.ofemp{padding:34px;text-align:center;color:var(--muted);font-weight:600}
+.ofemp .btn{margin-top:6px}
+.ofpdf{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding:11px 15px;
+  border:1.5px dashed var(--purple);border-radius:14px;color:var(--muted);font-weight:600}
+.ofpdf b{color:var(--ink)}
+
+/* ===== programação ===== */
+.pgcard{border:1px solid var(--border);border-radius:18px;background:var(--surface);overflow:hidden;margin-bottom:14px}
+.pghead{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:11px 15px;background:var(--head-bg);
+  border-bottom:1.5px solid var(--border)}
+.pgttl{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.pgttl b{color:var(--ink);font-weight:800;font-size:15.5px}
+.pgttl .pgq{color:var(--purple);font-weight:700;font-size:13px}
+.pgttl .pgo{color:var(--muted);font-weight:600;font-size:12.5px}
+.pgacts{margin-left:auto;display:flex;gap:6px}
+.pgtab .cH{width:98px;font-weight:800;color:var(--blue);white-space:nowrap}
+.pgtab .cAt{font-weight:600}
+.pgtab .cRe{width:24%;color:var(--muted);font-weight:600}
+.oftab tbody tr.pgblk td{background:var(--blue);color:#fff;font:800 12.5px var(--f-display);letter-spacing:.06em;
+  padding:7px 14px;border-bottom:none}
+.modal.tall{max-width:560px;max-height:86vh;overflow:auto}
+.pgHelp{color:var(--muted);font-size:12.5px;font-weight:600;margin:-8px 0 14px;line-height:1.55}
+.pgHelp code{background:var(--field);border:1px solid var(--border-2);border-radius:6px;padding:1px 5px;
+  color:var(--ink);font-size:12px}
+.modal .f textarea{width:100%;min-height:180px;padding:11px 13px;border-radius:13px;border:1px solid var(--border-2);
+  background:var(--field);color:var(--ink);font:14.5px/1.55 var(--f-body);resize:vertical}
+.modal .f textarea:focus{outline:2px solid var(--blue)}
+.btn.prnOpt{flex-direction:column;align-items:flex-start;justify-content:center;width:100%;
+  min-height:0;padding:12px 16px;border-radius:14px;gap:3px;text-align:left;margin-bottom:9px}
+.btn.prnOpt span{font-weight:800}
+.btn.prnOpt small{font:600 12.5px/1.45 var(--f-body);color:var(--muted)}
+.btn.prnOpt[disabled]{opacity:.5;pointer-events:none}
+
+/* ===== responsive ===== */
+@media (max-width:980px){
+  .layout{grid-template-columns:1fr;padding:14px 14px 26px}
+  .side{position:static}
+  .topbar{padding:10px 14px}
+}
+</style>
+<script>
+/* aplica o tema salvo ANTES de renderizar – evita "piscar" entre claro/escuro */
+(function(){var t='auto';try{t=localStorage.getItem('escalaTema')||'auto'}catch(e){}
+ var eff=(t==='auto')?(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'):t;
+ if(eff!=='dark'&&eff!=='light')eff='dark';
+ document.documentElement.setAttribute('data-theme',eff);})();
+</script>
+</head>
+<body>
+
+<!-- ===== LOGIN (Supabase) ===== -->
+<div class="ovl" id="loginOvl" style="z-index:90">
+  <div class="modal" style="max-width:430px">
+    <h3>🔑 Entrar</h3>
+    <p class="sub">Sistema conectado ao Supabase · etapa 2 (login + leitura)</p>
+    <div class="f">
+      <label for="lgUser">Usuário</label>
+      <input id="lgUser" autocomplete="username"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();sbEntrar()}">
+    </div>
+    <div class="f">
+      <label for="lgPass">Senha</label>
+      <input id="lgPass" type="password" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();sbEntrar()}">
+    </div>
+    <p class="sub" id="lgErr" style="display:none;color:#FF5C5C;margin:-4px 0 12px"></p>
+    <div class="evbtns" style="flex-wrap:wrap">
+      <button class="btn azul" onclick="sbEntrar()">🔓 Entrar</button>
+      <button class="btn" onclick="sbDemo()">Continuar sem conta (demonstração)</button>
+    </div>
+    <p class="sub" style="margin-top:16px;font-size:13px">
+      Esqueceu a senha? Peça ao administrador para redefinir no painel do Supabase
+      (Authentication → Users → Reset password).
+    </p>
+  </div>
+</div>
+
+<!-- ===== IGREJA ===== -->
+<div class="ovl on" id="chOvl">
+  <div class="chbox">
+    <div class="kick">Agenda Distrital</div>
+    <h1>Distrito Ivailândia – ANP</h1>
+    <p class="lead">Escolha a igreja do distrito para ver as escalas. <b>Você pode trocar a qualquer momento</b> no topo da tela.</p>
+    <div class="chgrid" id="chgrid"></div>
+    <div class="chfoot">
+      <span>Distrito · ANP – Associação Norte Paranaense</span>
+      <button class="btn roxo mini" id="btnAddCh" style="display:none" onclick="addChurchUI()">⛪ Igrejas</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOPBAR ===== -->
+<header class="topbar">
+  <div class="brand">AGENDA DISTRITAL<small>Ivailândia – ANP</small></div>
+  <nav class="tabs" id="tabs">
+    <button class="tab on" data-m="escalas">📅 Escalas</button>
+    <button class="tab" data-m="programacao">🗓 Programação</button>
+    <button class="tab" data-m="oficiais">👥 Lista de Oficiais</button>
+    <button class="tab" data-m="pastoral">⛪ Agenda Pastoral</button>
+    <button class="tab" data-m="assoc">🏛 Agenda Associação</button>
+  </nav>
+  <div class="grow"></div>
+  <select class="ctl" id="chSel" title="Igreja" onchange="selChurch(this.value)"></select>
+  <button class="btn azul" onclick="abrirImpressao()">🖨 Imprimir / PDF</button>
+  <button class="btn" id="btnTheme" onclick="cycleTheme()"
+    title="Tema da interface: automático (segue o sistema), escuro ou claro">💻 Automático</button>
+  <select class="ctl" id="roleSel" title="Demonstração: entrar como" onchange="setRole(this.value)">
+    <option value="visitante">👤 Entrar como: Membro</option>
+    <option value="admin_dist">🛠 Entrar como: Admin Distrital</option>
+    <option value="admin_local">🛠 Entrar como: Admin Local</option>
+    <option value="membro">🎵 Entrar como: Membro (Líder)</option>
+  </select>
+  <select class="ctl" id="alSel" title="Cada igreja tem o seu Admin Local – escolha de quem é este Admin Local"
+    onchange="setMyChurch(this.value)" style="display:none"></select>
+  <select class="ctl" id="lidSel" title="Membro (Líder): quem está entrando – edita só as agendas marcadas no cadastro dele"
+    onchange="setLider(this.value)" style="display:none"></select>
+  <span class="badge" id="sbQuem" style="display:none"></span>
+  <button class="btn" id="btnSair" style="display:none" onclick="sbSair()" title="Sair da conta">🚪 Sair</button>
+</header>
+
+<div class="layout">
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="side" id="side">
+    <button class="btn" style="width:100%;justify-content:center" id="btnNew" onclick="novoRapido()">＋ Nova escala</button>
+
+    <h3>Mês / Ano</h3>
+    <div class="srow">
+      <select class="ctl" id="selY" onchange="setYear(+this.value)"></select>
+      <button class="nbtn" onclick="nav(-1)" title="Mês anterior">‹</button>
+      <button class="nbtn" onclick="nav(1)" title="Próximo mês">›</button>
+    </div>
+    <div id="mini"></div>
+
+    <h3>Agendas</h3>
+    <div class="quick">
+      <button onclick="setAll(true)">✔ Todos</button>
+      <button onclick="setAll(false)">✘ Nenhum</button>
+      <button onclick="setMine()">Só as minhas</button>
+    </div>
+    <div id="agList"></div>
+    <button class="btn roxo" id="btnDeps" style="display:none;width:100%;justify-content:center;margin-top:10px"
+      onclick="openDeps()">⚙ Gerenciar agendas</button>
+    <div id="depHint" style="display:none;color:var(--dim);font-size:12px;padding:6px 7px 0">
+      Admin Distrital: cadastre agendas, troque cores e nomes.</div>
+
+    <h3>Dias da semana</h3>
+    <label class="sw"><input type="checkbox" id="ckHide" onchange="toggleHide(this.checked)"> Ocultar seg · ter · qui · sex</label>
+    <div style="color:var(--dim);font-size:12.5px;padding:0 7px">DOM, QUA e SÁB têm coluna maior e o cabeçalho em destaque.</div>
+
+    <h3>Meses vizinhos</h3>
+    <label class="sw"><input type="checkbox" id="ckOff" onchange="toggleOffDays(this.checked)"> Mostrar escalas dos dias de fora do mês</label>
+    <div style="color:var(--dim);font-size:12.5px;padding:0 7px">Desligado, os dias de setembro/novembro que aparecem na grade ficam só com o número.</div>
+
+    <div id="admBox" style="display:none">
+      <h3>Administração</h3>
+      <button class="btn azul" id="btnNewUser" style="width:100%;justify-content:center;margin-bottom:8px"
+        onclick="openUsers()">👥 Gerenciar usuários</button>
+      <button class="btn roxo" id="btnNewCh" style="width:100%;justify-content:center"
+        onclick="addChurchUI()">⛪ Gerenciar igrejas</button>
+      <button class="btn azul" id="btnDemo" style="width:100%;justify-content:center;margin-top:8px;display:none"
+        onclick="demoCarregar()">🧪 Dados de demonstração</button>
+      <button class="btn del" id="btnDemoDel" style="width:100%;justify-content:center;margin-top:6px;display:none"
+        onclick="demoRemover()">🧹 Remover demonstração</button>
+    </div>
+
+    <div class="me" id="meBox"></div>
+  </aside>
+
+  <!-- ===== CONTEÚDO ===== -->
+  <main>
+    <!-- CALENDÁRIO -->
+    <div id="viewCal">
+      <div class="toolbar">
+        <div class="navi">
+          <button class="nbtn" onclick="nav(-1)">‹</button>
+          <button class="nbtn" onclick="nav(1)">›</button>
+        </div>
+        <button class="btn azul" onclick="goToday()">Hoje</button>
+        <h1 id="ttl">—</h1>
+        <div class="grow"></div>
+        <span class="badge" id="chBadge">⛪ —</span>
+      </div>
+
+      <div class="info view" id="infoBar"></div>
+
+      <div class="print-head">
+        <h2>AGENDA DISTRITAL – Distrito Ivailândia – ANP</h2>
+        <div class="pl" id="printSub"></div>
+      </div>
+
+      <div class="gcal">
+        <div class="scrollx">
+          <div class="wdays" id="wdays"></div>
+          <div class="grid" id="grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LISTA DE OFICIAIS -->
+    <div id="viewOfic" style="display:none">
+      <div class="toolbar">
+        <h1 id="ttl3">Lista de Oficiais</h1>
+        <div class="grow"></div>
+        <span class="badge" id="chBadge3">⛪ —</span>
+        <button class="btn azul" onclick="imprimir()">🖨 Imprimir / PDF</button>
+      </div>
+      <div class="info view" id="ofInfo"></div>
+
+      <div class="print-head">
+        <h2>LISTA DE OFICIAIS – <span id="ofPrintCh">—</span></h2>
+        <div class="pl" id="ofPrintSub"></div>
+        <div class="pl" id="ofPrintAnexo"></div>
+      </div>
+
+      <div class="oftool">
+        <input class="ctl" id="ofBusca" placeholder="🔍 Buscar por nome, cargo ou departamento" oninput="renderOf()">
+        <div class="grow"></div>
+        <button class="btn azul" id="ofNew" onclick="openOf()">＋ Novo oficial</button>
+        <button class="btn roxo" id="ofPaste" onclick="openPaste()">📥 Colar do Excel</button>
+        <button class="btn" id="ofAttach" onclick="anexarPdf()">📎 Anexar PDF</button>
+        <input type="file" id="ofFile" accept="application/pdf,application/x-pdf" style="display:none" onchange="pdfEscolhido(this)">
+      </div>
+
+      <div class="ofwrap" id="ofWrap"></div>
+      <div class="ofpdf" id="ofPdfBox" style="display:none"></div>
+    </div>
+
+    <!-- PROGRAMAÇÃO -->
+    <div id="viewProg" style="display:none">
+      <div class="toolbar">
+        <h1 id="ttl4">Programação</h1>
+        <div class="grow"></div>
+        <span class="badge" id="chBadge4">⛪ —</span>
+        <button class="btn azul" onclick="abrirImpressao()">🖨 Imprimir / PDF</button>
+      </div>
+      <div class="info view" id="pgInfo"></div>
+
+      <div class="print-head">
+        <h2>PROGRAMAÇÃO – <span id="pgPrintCh">—</span></h2>
+        <div class="pl" id="pgPrintSub"></div>
+      </div>
+
+      <div class="oftool">
+        <input class="ctl" id="pgBusca" placeholder="🔍 Buscar por título, atividade ou responsável" oninput="renderProg()">
+        <div class="grow"></div>
+        <button class="btn azul" id="pgNew" onclick="openPg()">＋ Nova programação</button>
+        <button class="btn roxo" id="pgPaste" onclick="openPg(true)">📥 Colar do Excel</button>
+      </div>
+
+      <div id="pgWrap"></div>
+    </div>
+  </main>
+</div>
+
+<footer>
+  <span>AGENDA DISTRITAL – Distrito Ivailândia – ANP</span>
+  <a href="https://anp.adventistas.org/" target="_blank" rel="noopener"
+     title="Site oficial da ANP – Associação Norte Paranaense">🌐 Site da ANP · anp.adventistas.org</a>
+  <span>Protótipo visual · dados de demonstração</span>
+</footer>
+
+<!-- ===== MODAL OFICIAL ===== -->
+<div class="ovl" id="ofOvl" onclick="if(event.target===this)closeOf()">
+  <div class="modal">
+    <button class="close" onclick="closeOf()">✕</button>
+    <h3 id="ofT">＋ Novo oficial</h3>
+    <p class="sub">O departamento aparece uma vez por grupo na lista – as linhas seguintes ficam em branco.</p>
+    <div class="f"><label>Departamento</label>
+      <input id="ofD" list="ofDeps" placeholder="ex.: Diaconato"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();salvarOf()}">
+      <datalist id="ofDeps"></datalist></div>
+    <div class="f"><label>Cargo</label><input id="ofC" placeholder="ex.: Diácono"
+      onkeydown="if(event.key==='Enter'){event.preventDefault();salvarOf()}"></div>
+    <div class="f"><label>Responsável</label><input id="ofR" placeholder="ex.: Altair Farina"
+      onkeydown="if(event.key==='Enter'){event.preventDefault();salvarOf()}"></div>
+    <div class="evbtns">
+      <button class="btn azul" id="ofSave" onclick="salvarOf()">💾 Cadastrar</button>
+      <button class="btn" onclick="closeOf()">✕ Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL COLAR (Excel / Word) ===== -->
+<div class="ovl" id="ofPasteOvl" onclick="if(event.target===this)closePaste()">
+  <div class="modal">
+    <button class="close" onclick="closePaste()">✕</button>
+    <h3>📥 Colar do Excel / Word</h3>
+    <p class="sub">Copie as linhas e cole aqui em <b>3 colunas</b> (Tab, “;” ou espaço duplo):
+      <b>Departamento · Cargo · Responsável</b>. Deixe a coluna do departamento vazia para repetir o anterior.</p>
+    <div class="f"><textarea id="ofPasteTxt" placeholder="Diaconato&#9;Diácono&#9;Altair Farina"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();colarOf()}"></textarea></div>
+    <div class="evbtns">
+      <button class="btn azul" onclick="colarOf()">📥 Importar</button>
+      <button class="btn" onclick="closePaste()">✕ Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL PROGRAMAÇÃO ===== -->
+<div class="ovl" id="pgOvl" onclick="if(event.target===this)closePg()">
+  <div class="modal tall">
+    <button class="close" onclick="closePg()">✕</button>
+    <h3 id="pgT">＋ Nova programação</h3>
+    <p class="sub">Uma programação por culto/evento. As linhas saem <b>ordenadas por horário</b>.</p>
+    <div class="f"><label>Título</label>
+      <input id="pgTitulo" placeholder="ex.: Culto de Domingo"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();salvarPg()}"></div>
+    <div class="f"><label>Quando</label>
+      <select id="pgDia">
+        <option>Domingo</option><option>Sábado</option><option>Sexta</option>
+        <option>Quinta</option><option>Quarta</option><option>Terça</option>
+        <option>Segunda</option><option>Dia útil</option><option>Data especial</option>
+      </select></div>
+    <div class="f"><label>Data (opcional – para eventos pontuais, ex.: semana de evangelismo)</label>
+      <input type="date" id="pgData"></div>
+    <div class="f"><label>Linhas da programação</label>
+      <textarea id="pgItens" spellcheck="false"
+        placeholder="Escola Sabatina&#10;08h45&#9;Louvores&#10;09h00&#9;Abertura da Escola Sabatina&#10;Culto Divino&#10;10h10&#9;Momento dos anúncios"></textarea></div>
+    <div class="pgHelp">
+      <b>Formato de cada linha:</b> <code>horário + atividade</code> (Tab, “;” ou espaço duplo) —
+      <code>08h45&#9;Louvores</code> · uma terceira coluna é o <b>responsável</b>.
+      Uma linha <b>só com texto</b> vira a faixa de bloco (<code>Culto Divino</code>). Aceito <code>09h05</code> e <code>09:05</code>.
+    </div>
+    <div class="evbtns">
+      <button class="btn azul" id="pgSave" onclick="salvarPg()">💾 Cadastrar</button>
+      <button class="btn" onclick="closePg()">✕ Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL IMPRESSÃO (escolha de agendas) ===== -->
+<div class="ovl" id="prnOvl" onclick="if(event.target===this)closePrn()">
+  <div class="modal">
+    <button class="close" onclick="closePrn()">✕</button>
+    <h3>🖨 Imprimir / PDF</h3>
+    <p class="sub" id="prnInfo"></p>
+    <div id="prnOpts"></div>
+    <div class="evbtns"><button class="btn" onclick="closePrn()">✕ Cancelar</button></div>
+  </div>
+</div>
+
+<!-- ===== MODAL EVENTO ===== -->
+<div class="ovl" id="evOvl" onclick="if(event.target===this)closeEv()">
+  <div class="modal">
+    <button class="close" onclick="closeEv()">✕</button>
+    <h3 id="evT">Nova escala</h3>
+    <p class="sub" id="evSub"></p>
+    <div class="f"><label>Data da escala</label><input type="date" id="evDate"></div>
+    <div class="f"><label>Agenda</label><select id="evDep" onchange="atualizaEvDep()"></select></div>
+    <div class="evhint" id="evHint" style="display:none"></div>
+    <div class="f"><label>Texto da escala</label>
+      <input id="evTxt" placeholder="ex.: Louvor – Celebração 1" onkeydown="if(event.key==='Enter'){event.preventDefault();salvarEv()}">
+    </div>
+    <div class="evbtns">
+      <button class="btn" onclick="salvarEv()">💾 Salvar</button>
+      <button class="btn roxo" id="evDel" style="display:none" onclick="excluirEv()">🗑 Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL IGREJAS (admin distrital: cadastrar / alterar / excluir) ===== -->
+<div class="ovl" id="chAddOvl" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="modal" style="max-width:540px">
+    <button class="close" onclick="closeChurch()">✕</button>
+    <h3 id="chTitle">⛪ Cadastrar igreja</h3>
+    <p class="sub" id="chSub">Somente o Administrador Distrital cadastra, altera e exclui igrejas.</p>
+    <div class="f"><label id="chLblName">Nome da igreja</label>
+      <input id="ncName" placeholder="ex.: IASD Quinta do Sol"
+             onkeydown="if(event.key==='Enter'){event.preventDefault();saveChurch()}"></div>
+    <div class="f"><label>Cidade / endereço (opcional)</label>
+      <input id="ncCity" placeholder="ex.: Londrina – PR"
+             onkeydown="if(event.key==='Enter'){event.preventDefault();saveChurch()}"></div>
+    <div class="evbtns">
+      <button class="btn" id="chSave" onclick="saveChurch()">💾 Salvar</button>
+      <button class="btn azul" id="chCancel" style="display:none" onclick="cancelChurchEdit()">↩ Cancelar edição</button>
+    </div>
+    <div id="chList" style="margin-top:20px"></div>
+  </div>
+</div>
+
+<!-- ===== MODAL GERENCIAR AGENDAS (admin) ===== -->
+<div class="ovl" id="depOvl" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="modal" style="max-width:640px">
+    <button class="close" onclick="$('depOvl').classList.remove('on')">✕</button>
+    <h3>⚙ Gerenciar agendas</h3>
+    <p class="sub">Cadastre agendas da sua igreja, mude nomes e cores. A Agenda Pastoral e a Agenda Associação são do distrito e só o Admin Distrital as altera (o Admin Local só cuida das agendas dele).</p>
+    <div id="depRows"></div>
+    <div class="evbtns">
+      <button class="btn azul" onclick="depAdd(false)">＋ Agenda</button>
+      <button class="btn roxo" id="btnAddPast" onclick="depAdd(true)">＋ Pastor</button>
+      <button class="btn" id="btnAddAssoc" onclick="depAdd('assoc')">＋ Associação</button>
+      <button class="btn" onclick="$('depOvl').classList.remove('on')">Concluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL USUÁRIOS (admin: cadastrar / alterar / excluir) ===== -->
+<div class="ovl" id="userOvl" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="modal" style="max-width:560px">
+    <button class="close" onclick="closeUsers()">✕</button>
+    <h3 id="usTitle">👥 Cadastrar usuário</h3>
+    <p class="sub" id="usSub">Admin Distrital cadastra em qualquer igreja · Admin Local, apenas na sua.</p>
+    <div class="f"><label>Nome completo</label><input id="usNome" placeholder="ex.: Maria Aparecida Souza"
+      onkeydown="if(event.key==='Enter'){event.preventDefault();saveUser()}"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="f"><label>Usuário (login)</label><input id="usUser" placeholder="ex.: maria"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();saveUser()}"></div>
+      <div class="f"><label>WhatsApp</label><input id="usZap" placeholder="(43) 99999-0000"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="f"><label>Senha</label><input id="usSenha" type="text" placeholder="senha de acesso"></div>
+      <div class="f"><label>Nível de acesso</label>
+        <select id="usNivel" onchange="nivelChanged()">
+          <option value="visitante">Membro</option>
+          <option value="membro" selected>Membro / Líder</option>
+          <option value="admin_local">Admin Local</option>
+          <option value="admin_dist">Admin Distrital</option>
+        </select></div>
+    </div>
+    <div class="f"><label>Igreja</label><select id="usIgreja" onchange="fillDeps()"></select></div>
+    <div class="f" id="usDepBox"><label>Agenda que lidera (marque todas as que ele lidera)</label>
+      <div id="usDep" class="depck"></div></div>
+    <div class="evbtns">
+      <button class="btn" id="usSave" onclick="saveUser()">💾 Cadastrar</button>
+      <button class="btn azul" id="usCancel" style="display:none" onclick="cancelUserEdit()">↩ Cancelar edição</button>
+    </div>
+    <div id="usList" style="margin-top:16px"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Supabase (CDN UMD) – define window.supabase.createClient.
+     Se a tag não carregar (offline/sem rede), o app cai no modo protótipo. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const WD=['DOMINGO','SEGUNDA','TERÇA','QUARTA','QUINTA','SEXTA','SÁBADO'];
+
+/* ================= SUPABASE (Etapa 2: login + leitura) ================= */
+const SB_URL='https://mjnwhohloafxfdsbltbl.supabase.co';
+const SB_KEY='sb_publishable_M02zSGpa4OwWAvRozGY5dw_FdoC2TUe';
+const SB_EMAIL_DOM='@escalas.distrital.app';
+/* Sem window.supabase (CDN caiu / testes / offline) => SB=null => modo protótipo. */
+const SB=(typeof window!=='undefined'&&window.supabase&&window.supabase.createClient)
+  ?window.supabase.createClient(SB_URL,SB_KEY):null;
+let SBDEMO=false;          // escolheu "Continuar sem conta (demonstração)"
+let SBPERFIL=null;         // linha de public.users do usuário logado
+const SBID={};             // nome da igreja -> uuid no banco (Etapa 3)
+let SBORDEM=0;             // maior nº de ordem já usado nas agendas (para a próxima)
+function sbAtivo(){return !!(SB&&!SBDEMO)}   // ligado ao Supabase (nuvem)
+
+/* ===== Etapa 3: gravação no Supabase ===== */
+function sbIgId(){return SBID[S.church]||null}          // uuid da igreja aberta
+function sbErro(op,e){                                  // avisa quando a gravação falha
+  const m=(e&&e.message)||String(e==null?'':e);
+  toast('⚠️ Não deu para '+op+(m?': '+m:''));
+}
+async function sbEnvia(op,req){                         // true = gravou (ou não há Supabase); false = falhou
+  if(!sbAtivo())return true;
+  try{
+    const r=await req();
+    if(r&&r.error){sbErro(op,r.error);return false}
+    return true;
+  }catch(e){sbErro(op,e);return false}
+}
+async function sbResposta(op,req){                      // igual, mas devolve a resposta (para pegar o id gerado)
+  if(!sbAtivo())return null;
+  try{
+    const r=await req();
+    if(r&&r.error){sbErro(op,r.error);return null}
+    return r;
+  }catch(e){sbErro(op,e);return null}
+}
+async function sbRecarregar(){                          // relê tudo do banco e repinta (mantém a igreja aberta)
+  if(!sbAtivo())return;
+  const onAntes=Array.from(S.on);
+  const err=await sbCarregarTudo();
+  if(err){toast('⚠️ Não deu para reler os dados: '+err);return}
+  if(S.church&&CHURCHES.includes(S.church)){
+    loadChurch(S.church);
+    const fica=onAntes.filter(id=>DEPTS.some(d=>d.id===id));
+    if(fica.length)S.on=new Set(fica);
+  }
+  render();renderChurches();
+  if($('userOvl')&&$('userOvl').classList.contains('on'))renderUserList();
+  if($('depOvl')&&$('depOvl').classList.contains('on'))renderDeps();
+}
+
+const DEPTSTORE={}, EVSTORE={};
+const DEPTS_TPL=[
+ {id:'recepcao',   n:'Recepção',            c:'#2F8CFF', full:'Recepção',            sigla:'Rec'},
+ {id:'diaconato',  n:'Diaconato',           c:'#8B5CF6', full:'Diaconato',           sigla:'Dia'},
+ {id:'limpeza',    n:'Limpeza',             c:'#3DDC97', full:'Limpeza',             sigla:'Limp'},
+ {id:'louvor',     n:'Louvor',              c:'#FF8C1A', full:'Louvor',              sigla:'Louv'},
+ {id:'pregadores', n:'Pregadores',          c:'#FF5C5C', full:'Pregadores',          sigla:'Preg'},
+ {id:'escola',     n:'Escola Sabatina',     c:'#FFC93C', full:'Escola Sabatina',     sigla:'ES'},
+ {id:'sonoplastia',n:'Sonoplastia',         c:'#00D1C1', full:'Sonoplastia',         sigla:'Som'},
+ {id:'anp',        n:'ANP',                 c:'#FF5CA8', full:'ANP – Associação Norte Paranaense', sigla:'ANP', assoc:true},
+ {id:'past1',      n:'Pr. Erivando',        c:'#E879F9', full:'Agenda Pastoral – Pr. Erivando', sigla:'PrE', past:true}
+];
+const SHARED={};                          // agendas do distrito: 1 objeto único, usado por TODAS as igrejas
+DEPTS_TPL.forEach(d=>{if(d.past||d.assoc)SHARED[d.id]={...d}});
+function defDepts(){
+ const arr=DEPTS_TPL.map(d=>SHARED[d.id]?SHARED[d.id]:{...d});
+ Object.keys(SHARED).forEach(id=>{if(!arr.some(x=>x.id===id))arr.push(SHARED[id])});
+ return arr;
+}
+function isSharedDep(id){return !!SHARED[id]}
+function isSharedEv(e){return !!e&&isSharedDep(e.dep)}
+function herdandoCompartilhados(){        // igreja nova recebe as escalas já compartilhadas
+ const orig=CHURCHES.map(c=>EVSTORE[c]).find(a=>a&&a.some(isSharedEv));
+ return orig?orig.filter(isSharedEv).slice():[];
+}
+function pushCompartilhado(ev){           // a mesma escala entra na lista de todas as igrejas
+ const igrejas=CHURCHES.slice(); if(S.church&&igrejas.indexOf(S.church)<0)igrejas.push(S.church);
+ igrejas.forEach(c=>{ if(!EVSTORE[c])EVSTORE[c]=herdandoCompartilhados();
+  if(!EVSTORE[c].some(x=>x.id===ev.id))EVSTORE[c].push(ev) });
+}
+function removeCompartilhado(ev,manter){  // sai de todas, menos da que ficar (manter)
+ CHURCHES.forEach(c=>{ if(c===manter)return;
+  const a=EVSTORE[c]; if(!a)return;
+  for(let k=a.length-1;k>=0;k--) if(a[k]===ev||a[k].id===ev.id)a.splice(k,1) });
+}
+let DEPTS=defDepts();
+function loadChurch(c){
+ if(!DEPTSTORE[c])DEPTSTORE[c]=defDepts();
+ DEPTS=DEPTSTORE[c];
+ if(!EVSTORE[c])EVSTORE[c]=herdandoCompartilhados();
+ if(sbAtivo())S.on=new Set(DEPTS.map(d=>d.id));   // ids por igreja no banco: começa tudo marcado
+ S.EV=EVSTORE[c];
+ // 6b: mantém as agendas marcadas pelo usuário (as agendas são do distrito: mesmas em todas as igrejas)
+ let novo=new Set(Array.from(S.on).filter(id=>DEPTS.some(d=>d.id===id)));
+ if(S.on.size>0&&novo.size===0)novo=new Set(DEPTS.map(d=>d.id));   // ids não batem: volta a tudo
+ S.on=novo;
+}
+const D=id=>DEPTS.find(d=>d.id===id);
+
+const ROLES={
+ visitante :{badge:'👁 Membro',        perm:'Somente visualização – filtra e imprime; vê apenas a própria igreja', perms:[],         allChurchs:false, lockChurch:true},
+ admin_dist:{badge:'🛠 Admin Distrital',  perm:'Edita TODAS as igrejas e agendas do distrito',    perms:'all',      allChurchs:true},
+ admin_local:{badge:'🛠 Admin Local',     perm:'Edita a sua igreja – as agendas Pastoral e de Associação são do Admin Distrital',   perms:'all',      allChurchs:false, myChurch:'IASD Jardim Kakimori'},
+ membro    :{badge:'🎵 Membro (Líder)',  perm:'Edita somente as agendas em que é líder (marcadas no cadastro) e apenas na sua igreja', perms:[], allChurchs:false, lockChurch:true}
+};
+
+/* cada igreja tem o SEU Admin Local – escolhe-se no topo (#alSel) */
+let CHURCHES=['IASD Barbosa Ferraz','IASD Engenheiro Beltrão','IASD Floresta','IASD Itambé',
+              'IASD Ivailândia','IASD Jardim Kakimori','IASD Quinta do Sol'];
+let CHCITY  ={'IASD Barbosa Ferraz':'Distrito · ANP','IASD Engenheiro Beltrão':'Distrito · ANP','IASD Floresta':'Distrito · ANP',
+              'IASD Itambé':'Distrito · ANP','IASD Ivailândia':'Distrito · ANP','IASD Jardim Kakimori':'Distrito · ANP',
+              'IASD Quinta do Sol':'Distrito · ANP'};
+
+/* migração da lista v2 de igrejas (07/10): renomeada -> leva os dados; as demais antigas saem */
+const MIG_IG={'IASD Jardim Kakimore':'IASD Jardim Kakimori'};
+function migraIg(loja){
+ if(!loja||typeof loja!=='object')return;
+ Object.keys(MIG_IG).forEach(o=>{const n=MIG_IG[o];
+  if(loja[o]!==undefined&&loja[n]===undefined)loja[n]=loja[o]});
+}
+
+const T={
+ 0:[['recepcao','A. Maria – acolhida'],['diaconato','J. Pereira – dízimos'],['louvor','Celebração da Manhã'],
+    ['pregadores','Pr. Carlos Mendes'],['escola','Prof.ª Sara Oliveira'],['sonoplastia','Transmissão – L. Rocha'],
+    ['past1','Visita – Fam. Pereira']],
+ 1:[['limpeza','Limpeza geral – A. Lima']],
+ 2:[['past1','Estudo bíblico 19h']],
+ 3:[['louvor','Ensaio 19h'],['escola','Aula – Prof. Rui'],['sonoplastia','Teste de som']],
+ 4:[],
+ 5:[],
+ 6:[['recepcao','B. Alves – acolhida'],['diaconato','R. Santos – ofertório'],['limpeza','M. Carla'],
+    ['louvor','Louvor dos Santos'],['escola','Prof.ª Cíntia'],['sonoplastia','Som – P. Henrique'],
+    ['anp','Reunião ANP – 15h'],['past1','Celebração – Pr. Erivando']]
+};
+
+const now=new Date();
+const S={y:now.getFullYear(),m:now.getMonth(),mod:'escalas',role:'visitante',church:null,hidden:false,
+         on:new Set(DEPTS.map(d=>d.id)),EV:[],nid:1,lider:null,showOff:false};
+const anoBase=S.y;                          // ano inicial: o seletor de ano nunca perde o ponto de partida
+const seeded=new Set();
+
+function pad(n){return String(n).padStart(2,'0')}
+function fmt(y,m,d){return y+'-'+pad(m+1)+'-'+pad(d)}
+function canEdit(dep){
+ const r=ROLES[S.role];
+ if(isSharedDep(dep))return S.role==='admin_dist';   // agendas do distrito (Pastoral/Associação): só Admin Distrital
+ if(r.perms==='all')return canAdmin();      // admin: só na igreja certa
+ if(S.role==='membro'){                     // líder: só o que está marcado NO CADASTRO dele ("Agenda que lidera")
+  const u=liderAtual(); return !!u&&(u.dep||[]).includes(dep);
+ }
+ return r.perms.includes(dep);
+}
+/* líder: a lista de escalas editáveis vem do cadastro do usuário (protótipo sem login: o seletor do topo
+   escolhe "quem está logado"; no Supabase isso vem do próprio usuário autenticado) */
+function lideres(){return USUARIOS.filter(u=>u.nivel==='membro'&&u.igreja===S.church)}
+function liderAtual(){const l=lideres();return l.find(u=>u.user===S.lider)||l[0]||null}
+function agendasDe(u){return (u.dep||[]).map(id=>{const d=D(id);return d?d.n:id})}
+function setLider(v){
+ const u=lideres().find(x=>x.user===v); if(!u)return;
+ S.lider=u.user; render();
+ toast('Líder: '+u.nome+' – edita só: '+(agendasDe(u).join(', ')||'nenhuma agenda marcada'));
+}
+function podeMexer(id){                     // mesma trava no ⚙ Gerenciar agendas
+ if(!isSharedDep(id))return canAdmin();
+ if(S.role==='admin_dist')return true;
+ toast('Somente o Admin Distrital altera a Agenda Pastoral e a Agenda Associação');
+ return false;
+}
+function igrejaTravada(){                   // níveis presos à própria igreja (Membro comum e Líder)
+ return !!ROLES[S.role].lockChurch;
+}
+function msgIgTravada(){return (S.role==='membro'?'Nível Membro/Líder':'Nível Membro')+': você vê apenas a sua igreja'}
+function isDistAdmin(){return S.role==='admin_dist'}
+function canAdmin(){const r=ROLES[S.role];return r.perms==='all'&&(r.allChurchs||S.church===r.myChurch)}
+function canEditAny(){return deptList().some(d=>canEdit(d.id))}
+function deptList(){return S.mod==='pastoral'?DEPTS.filter(d=>d.past):S.mod==='assoc'?DEPTS.filter(d=>d.assoc):DEPTS}
+function inMod(dep){return deptList().some(d=>d.id===dep)}
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),2400)}
+
+/* ---------- tema: automático / escuro / claro ---------- */
+const TEMAS=['auto','dark','light'];
+const TEMA_LABEL={auto:'💻 Automático',dark:'🌙 Escuro',light:'☀️ Claro'};
+function prefersLight(){return !!(window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)}
+function applyTheme(t){
+ if(TEMAS.indexOf(t)<0)t='auto';
+ try{localStorage.setItem('escalaTema',t)}catch(e){}
+ const eff=(t==='auto')?(prefersLight()?'light':'dark'):t;
+ document.documentElement.setAttribute('data-theme',eff);
+ window.__tema=t;
+ const b=$('btnTheme'); if(b)b.textContent=TEMA_LABEL[t];
+}
+function cycleTheme(){
+ const cur=window.__tema||'auto';
+ const next=TEMAS[(TEMAS.indexOf(cur)+1)%TEMAS.length];
+ applyTheme(next);
+ toast('Tema: '+TEMA_LABEL[next].split(' ')[1]);
+}
+function initTheme(){
+ let t='auto'; try{t=localStorage.getItem('escalaTema')||'auto'}catch(e){}
+ applyTheme(t);
+ if(window.matchMedia){
+  const mq=window.matchMedia('(prefers-color-scheme: light)');
+  const on=()=>{if((window.__tema||'auto')==='auto')applyTheme('auto')};
+  if(mq.addEventListener)mq.addEventListener('change',on);
+  else if(mq.addListener)mq.addListener(on);
+ }
+}
+
+/* ---------- dados de demonstração ---------- */
+const DEMO_PFX='🧪 DEMO · ';
+function demoDepId(logico){              // chave do molde ('louvor','past1'…) -> id real da agenda na igreja aberta
+ const d=DEPTS.find(x=>x.id===logico||x.id.indexOf(logico+'-')===0);
+ return d?d.id:null;
+}
+async function demoCarregar(){
+ if(!canAdmin())return toast('Somente administradores carregam dados de demonstração');
+ if(!sbAtivo())return toast('No protótipo os dados de demonstração já vêm sozinhos (semente)');
+ const uuid=sbIgId(); if(!uuid)return toast('Abra uma igreja primeiro');
+ if(!confirm('Carregar dados de demonstração na igreja aberta?\n\n• 1 mês de escalas no calendário\n• 3 programações de culto\n\nTudo sai marcado com "'+DEMO_PFX+'" e o botão "🧹 Remover demonstração" apaga tudo de uma vez.'))return;
+ const rows=[]; let n=0;
+ const days=new Date(S.y,S.m+1,0).getDate();
+ for(let d=1;d<=days;d++){
+  const wd=new Date(S.y,S.m,d).getDay();
+  (T[wd]||[]).forEach(e=>{
+   if((d%13)===0&&e[0]==='limpeza')return;
+   const dep=demoDepId(e[0]); if(!dep)return;
+   rows.push({church_id:uuid,department_id:dep,dia:fmt(S.y,S.m,d),texto:DEMO_PFX+e[1],distrital:isSharedDep(dep)});
+   n++;
+  });
+ }
+ if(!rows.length)return toast('Nenhuma agenda do modelo existe nesta igreja');
+ if(!await sbEnvia('carregar as escalas de demonstração',()=>SB.from('events').insert(rows)))return;
+ const pg=JSON.parse(JSON.stringify(PG_SEED)).map(p=>{p.t=DEMO_PFX+p.t;return p});
+ const atual=Array.isArray(PGSTORE[S.church])?PGSTORE[S.church]:[];
+ PGSTORE[S.church]=atual.concat(pg);
+ await sbPgPush();
+ await sbRecarregar(); render();
+ toast('Demonstração carregada ✔ ('+n+' escalas + '+pg.length+' programações) – tudo marcado com '+DEMO_PFX);
+}
+async function demoRemover(){
+ if(!canAdmin())return toast('Somente administradores removem dados de demonstração');
+ if(!sbAtivo())return toast('No protótipo não há dados de demonstração para remover');
+ const uuid=sbIgId(); if(!uuid)return toast('Abra uma igreja primeiro');
+ if(!confirm('Remover TODOS os dados de demonstração desta igreja (escalas e programações marcadas com '+DEMO_PFX+')?'))return;
+ const r=await sbResposta('ler as escalas de demonstração',()=>SB.from('events').select('id,texto').eq('church_id',uuid));
+ if(!r)return;
+ const alvos=(r.data||[]).filter(e=>e.texto&&e.texto.indexOf(DEMO_PFX)===0);
+ let n=0;
+ for(const e of alvos){
+  if(await sbEnvia('remover uma escala de demonstração',()=>SB.from('events').delete().eq('id',e.id)))n++;
+ }
+ const antes=Array.isArray(PGSTORE[S.church])?PGSTORE[S.church]:[];
+ PGSTORE[S.church]=antes.filter(p=>!(p&&p.t&&p.t.indexOf(DEMO_PFX)===0));
+ if(PGSTORE[S.church].length!==antes.length)await sbPgPush();
+ await sbRecarregar(); render();
+ toast(n||PGSTORE[S.church].length!==antes.length
+   ?'Demonstração removida ✔ ('+n+' escalas apagadas)'
+   :'Nenhum dado de demonstração nesta igreja');
+}
+function seed(y,m){
+ if(sbAtivo())return;                       // modo Supabase: escalas vêm do banco
+ const k=(S.church||'-')+'|'+y+'-'+m; if(seeded.has(k))return; seeded.add(k);
+ const sk='@compartilhado|'+y+'-'+m, novo=!seeded.has(sk); if(novo)seeded.add(sk);
+ const days=new Date(y,m+1,0).getDate();
+ for(let d=1;d<=days;d++){
+   const wd=new Date(y,m,d).getDay();
+   (T[wd]||[]).forEach(e=>{ if((d%13)===0 && e[0]==='limpeza') return;
+     const ev={id:S.nid++,d:fmt(y,m,d),dep:e[0],t:e[1]};
+     if(isSharedDep(e[0])){ if(novo)pushCompartilhado(ev) }   // agenda do distrito: 1 escala em todas
+     else S.EV.push(ev); });
+ }
+}
+
+/* ---------- igreja ---------- */
+function renderChurches(){
+ $('chgrid').innerHTML=CHURCHES.map((c,i)=>
+  `<div class="chcard" onclick="pickChurch('${escOf(c.replace(/'/g,"\\'"))}')">
+     <div class="ic">⛪</div><div class="nm">${escOf(c)}</div><div class="sub">${escOf(CHCITY[c]||'')}</div></div>`).join('');
+ $('chSel').innerHTML=CHURCHES.map(c=>`<option>${escOf(c)}</option>`).join('');
+ if(S.church&&CHURCHES.includes(S.church))$('chSel').value=S.church;
+ $('btnAddCh').style.display=isDistAdmin()?'':'none';
+}
+function pickChurch(c){
+ if(igrejaTravada()&&S.church&&c!==S.church){toast(msgIgTravada());return}
+ S.church=c;
+ $('chSel').value=c;
+ loadChurch(c);
+ $('chOvl').classList.remove('on');
+ toast('Bem-vindo à '+c);
+ render();
+}
+function selChurch(c){
+ if(igrejaTravada()){toast(msgIgTravada());renderChurches();return}
+ S.church=c;loadChurch(c);render();toast('Igreja: '+c)
+}
+let chEdit=null;   // nome original da igreja em edição (null = cadastrando)
+
+function addChurchUI(){
+ if(!isDistAdmin()){toast('Somente o Admin Distrital gerencia igrejas');return}
+ cancelChurchEdit();
+ renderChurchList();
+ $('chAddOvl').classList.add('on');
+ setTimeout(()=>$('ncName').focus(),80);
+}
+function closeChurch(){cancelChurchEdit();$('chAddOvl').classList.remove('on')}
+
+function editChurch(nome){
+ if(!isDistAdmin()){toast('Somente o Admin Distrital gerencia igrejas');return}
+ if(!CHURCHES.includes(nome))return;
+ chEdit=nome;
+ $('ncName').value=nome;
+ $('ncCity').value=CHCITY[nome]||'';
+ $('chTitle').textContent='✏️ Alterar igreja';
+ $('chSub').textContent='Alterando “'+nome+'”. Salve as mudanças ou cancele a edição.';
+ $('chLblName').textContent='Nome da igreja';
+ $('chSave').innerHTML='💾 Salvar alterações';
+ $('chCancel').style.display='';
+ renderChurchList();
+ $('chAddOvl').classList.add('on');
+ setTimeout(()=>$('ncName').focus(),80);
+}
+function cancelChurchEdit(){
+ chEdit=null;
+ $('ncName').value='';$('ncCity').value='';
+ $('chTitle').textContent='⛪ Cadastrar igreja';
+ $('chSub').textContent='Somente o Administrador Distrital cadastra, altera e exclui igrejas.';
+ $('chLblName').textContent='Nome da igreja';
+ $('chSave').innerHTML='💾 Salvar';
+ $('chCancel').style.display='none';
+}
+
+/* as 7 agendas padrão de uma igreja nova (mesma receita da semente do banco) */
+async function sbCriarAgendas(uuid){
+ const base=DEPTS_TPL.filter(d=>!d.past&&!d.assoc);
+ const rows=base.map((d,i)=>({id:d.id+'-'+String(uuid).slice(0,8),key:d.id,church_id:uuid,
+   name:d.n,color:d.c,sigla:d.sigla||'',tooltip:d.full||d.n,tipo:'normal',ordem:i+1}));
+ return await sbEnvia('criar as agendas da igreja',()=>SB.from('departments').insert(rows));
+}
+async function saveChurch(){          // cadastra nova OU salva a alteração
+ if(!isDistAdmin()){toast('Somente o Admin Distrital gerencia igrejas');return}
+ const n=$('ncName').value.trim();
+ if(!n){toast('Digite o nome da igreja');return}
+ const city=$('ncCity').value.trim()||'Distrito · ANP';
+
+ if(chEdit){                    // ---- alterando ----
+   if(n!==chEdit&&CHURCHES.includes(n)){toast('Já existe uma igreja com esse nome');return}
+   const old=chEdit;
+   if(sbAtivo()){              // Etapa 3: grava no banco antes de renomear por aqui
+     const uuid=SBID[old];
+     if(!uuid){toast('⚠️ Não achei a igreja "'+old+'" no Supabase');return}
+     const r=await sbResposta('salvar a igreja',()=>SB.from('churches').update({name:n,city:city}).eq('id',uuid));
+     if(!r)return;
+     delete SBID[old];SBID[n]=uuid;
+   }
+   renameChurch(old,n);
+   CHCITY[n]=city;
+   cancelChurchEdit();
+   refreshChurchs();
+   toast('Igreja alterada ✔');
+   if(sbAtivo())sbRecarregar();
+   return;
+ }
+ // ---- cadastrando ----
+ if(CHURCHES.includes(n)){toast('Essa igreja já está cadastrada');return}
+ let uuid=null;
+ if(sbAtivo()){
+   const r=await sbResposta('cadastrar a igreja',()=>SB.from('churches')
+     .insert({name:n,city:city,ordem:CHURCHES.length+1}).select('id').single());
+   if(!r||!r.data){toast('⚠️ Não deu para cadastrar a igreja');return}
+   uuid=r.data.id;
+   if(!await sbCriarAgendas(uuid))return;   // o aviso da falha já apareceu
+ }
+ CHURCHES.push(n);CHCITY[n]=city;if(uuid)SBID[n]=uuid;
+ if(!sbAtivo()){ensureMembro(n);ensureLider(n)}
+ cancelChurchEdit();
+ refreshChurchs();
+ toast('Igreja cadastrada ✔');
+ if(sbAtivo())sbRecarregar();   // relê as agendas reais da igreja nova
+}
+
+function renameChurch(oldN,newN){          // mantém todos os vínculos ao renomear
+ if(oldN===newN)return;
+ const i=CHURCHES.indexOf(oldN); if(i>-1)CHURCHES[i]=newN;
+ CHCITY[newN]=CHCITY[oldN]; delete CHCITY[oldN];
+ if(DEPTSTORE[oldN]){DEPTSTORE[newN]=DEPTSTORE[oldN];delete DEPTSTORE[oldN]}
+ if(EVSTORE[oldN])  {EVSTORE[newN]=EVSTORE[oldN];   delete EVSTORE[oldN]}
+ // lista de oficiais, anexo PDF e programações também migram (senão "sumiam" ao renomear)
+ if(OFSTORE[oldN]!==undefined){OFSTORE[newN]=OFSTORE[oldN];delete OFSTORE[oldN];saveOf()}
+ if(OFPDF[oldN])             {OFPDF[newN]=OFPDF[oldN]; delete OFPDF[oldN]; savePdf()}
+ if(PGSTORE[oldN]!==undefined){PGSTORE[newN]=PGSTORE[oldN];delete PGSTORE[oldN];savePg()}
+ USUARIOS.forEach(u=>{if(u.igreja===oldN)u.igreja=newN});
+ ensureMembro(newN);ensureLider(newN);
+ if(ROLES.admin_local.myChurch===oldN)ROLES.admin_local.myChurch=newN;
+ [...seeded].forEach(k=>{if(k.split('|')[0]===oldN){seeded.delete(k);seeded.add(newN+k.slice(oldN.length))}});
+ if(S.church===oldN){S.church=newN;$('chSel').value=newN}
+}
+
+async function delChurch(nome){
+ if(!isDistAdmin()){toast('Somente o Admin Distrital gerencia igrejas');return}
+ if(!CHURCHES.includes(nome))return;
+ if(CHURCHES.length<=1){toast('Deve permanecer pelo menos uma igreja');return}
+ if(!confirm('Excluir a igreja "'+nome+'"?\n\nTambém serão removidas as agendas, escalas e usuários vinculados a ela. Essa ação não pode ser desfeita.'))return;
+
+ if(sbAtivo()){               // Etapa 3: escalas antes (a agenda depende delas), depois a igreja (cascata no resto)
+  const uuid=SBID[nome];
+  if(!uuid){toast('⚠️ Não achei a igreja "'+nome+'" no Supabase');return}
+  if(!await sbEnvia('excluir as escalas da igreja',()=>SB.from('events').delete().eq('church_id',uuid)))return;
+  if(!await sbEnvia('excluir a igreja',()=>SB.from('churches').delete().eq('id',uuid)))return;
+  delete SBID[nome];
+ }
+
+ CHURCHES=CHURCHES.filter(c=>c!==nome);
+ delete CHCITY[nome];
+ delete DEPTSTORE[nome];
+ delete EVSTORE[nome];
+ delete OFSTORE[nome]; saveOf();            // sem dados órfãos (senão uma igreja nova com o mesmo nome herdados)
+ delete OFPDF[nome];  savePdf();
+ delete PGSTORE[nome];savePg();
+ USUARIOS=USUARIOS.filter(u=>u.igreja!==nome);
+ [...seeded].forEach(k=>{if(k.split('|')[0]===nome)seeded.delete(k)});
+ if(ROLES.admin_local.myChurch===nome)ROLES.admin_local.myChurch=CHURCHES[0];
+ if(chEdit===nome)cancelChurchEdit();
+
+ const atualizada=(S.church===nome);
+ if(atualizada){S.church=CHURCHES[0];$('chSel').value=S.church;loadChurch(S.church)}
+ refreshChurchs();
+ toast('Igreja excluída ✔');
+ if(sbAtivo())sbRecarregar();
+}
+
+function refreshChurchs(){       // repinta seletor, grade, lista do modal e o resto
+ renderChurches();
+ renderChurchList();
+ render();
+}
+
+function renderChurchList(){
+ const rows=CHURCHES.map(c=>{
+  const q=c.replace(/'/g,"\\'");
+  const atual=(c===S.church);
+  return `<div class="urow chrow">
+    <div class="chnm">
+      <b>${escOf(c)}</b>${atual?'<span class="chnow">atual</span>':''}
+      <div class="usub">${escOf(CHCITY[c]||'')}</div>
+    </div>
+    <button class="btn azul mini" title="Alterar igreja" onclick="editChurch('${escOf(q)}')">✏️ Alterar</button>
+    <button class="btn mini del" title="Excluir igreja" onclick="delChurch('${escOf(q)}')">🗑 Excluir</button>
+  </div>`;
+ }).join('');
+ $('chList').innerHTML=
+  '<div class="chlisthead">Igrejas cadastradas ('+CHURCHES.length+')</div>'+
+  (rows||'<div class="usub">Nenhuma igreja cadastrada.</div>');
+}
+
+/* ---------- usuários (cadastro do admin) ---------- */
+let USUARIOS=[
+ {nome:'Admin Distrital',user:'admin',zap:'(43) 99999-0001',senha:'•••',nivel:'admin_dist',igreja:'*',dep:[]}
+];
+/* usuário padrão "membro": um por igreja (mesmo login em igrejas diferentes) */
+function ensureMembro(igreja){
+ if(sbAtivo())return;               // modo nuvem: usuários vêm do banco (nada de exemplo)
+ if(!igreja||igreja==='*')return;
+ if(USUARIOS.some(u=>u.user==='membro'&&u.igreja===igreja))return;
+ USUARIOS.push({nome:'Membro',user:'membro',zap:'',senha:'membro123',nivel:'visitante',igreja:igreja,dep:[]});
+}
+/* um líder de exemplo por igreja (agendas que ele edita ficam no campo "Agenda que lidera") */
+function ensureLider(igreja){
+ if(sbAtivo())return;               // modo nuvem: usuários vêm do banco (nada de exemplo)
+ if(!igreja||igreja==='*')return;
+ if(USUARIOS.some(u=>u.user==='lider'&&u.igreja===igreja))return;
+ USUARIOS.push({nome:'Líder',user:'lider',zap:'',senha:'lider123',nivel:'membro',igreja:igreja,dep:['louvor']});
+}
+CHURCHES.forEach(ensureMembro);
+CHURCHES.forEach(ensureLider);
+
+let usEdit=null;    // login original do usuário em edição (null = cadastrando)
+let usEditIg=null;  // igreja do usuário em edição (null = sem igreja definida)
+let usDepSel=new Set(); // agendas marcadas no formulário (caixas de seleção)
+
+function fillIgrejas(){
+ const ig=($('usIgreja'));
+ const listIg=(S.role==='admin_local')?[ROLES.admin_local.myChurch]:CHURCHES;
+ ig.innerHTML=(S.role==='admin_local'?'':'<option value="*">Todas as igrejas (distrital)</option>')+
+   listIg.map(c=>`<option>${escOf(c)}</option>`).join('');
+}
+function openUsers(){
+ if(!canAdmin()){toast('Somente administradores gerenciam usuários');return}
+ cancelUserEdit();
+ fillIgrejas();
+ fillDeps();
+ renderUserList();
+ $('userOvl').classList.add('on');
+ setTimeout(()=>$('usNome').focus(),80);
+}
+function closeUsers(){cancelUserEdit();$('userOvl').classList.remove('on')}
+function canManageUser(u){
+ if(S.role==='admin_dist')return true;
+ return S.role==='admin_local'&&u.igreja===ROLES.admin_local.myChurch;
+}
+function fillDeps(){
+ const c=$('usIgreja').value;
+ const src=(DEPTSTORE[c]||DEPTS).filter(d=>!d.past&&!d.assoc);
+ // o que não existe nessa igreja sai da marcação (antes, trocar de igreja limpava o select)
+ const validos=new Set(src.map(d=>d.id));
+ if([...usDepSel].some(id=>!validos.has(id)))usDepSel=new Set([...usDepSel].filter(id=>validos.has(id)));
+ // caixas de seleção (antes era select multiple: exigia Ctrl+click e não funcionava no celular)
+ $('usDep').innerHTML=src.length?src.map(d=>
+   `<label class="ckrow"><input type="checkbox"${usDepSel.has(d.id)?' checked':''}`+
+   ` onchange="toggleUsDep('${d.id}',this.checked)">`+
+   `<span class="dot" style="background:${d.c}"></span>${escOf(d.n)}</label>`).join('')
+  :'<div class="ckrow vazio">Nenhuma agenda cadastrada</div>';
+}
+function toggleUsDep(id,v){ if(v)usDepSel.add(id); else usDepSel.delete(id); }
+function nivelChanged(){
+ const n=$('usNivel').value;
+ $('usDepBox').style.display=(n==='membro')?'':'none';
+}
+function clearUserForm(){
+ $('usNome').value=$('usUser').value=$('usZap').value=$('usSenha').value='';
+ $('usNivel').value='membro';nivelChanged();
+ usDepSel=new Set();fillDeps();          // desmarca as caixas
+}
+function cancelUserEdit(){   // sai do modo edição e volta ao modo cadastrar
+ usEdit=null;usEditIg=null;
+ clearUserForm();
+ $('usTitle').textContent='👥 Cadastrar usuário';
+ $('usSub').textContent='Admin Distrital cadastra em qualquer igreja · Admin Local, apenas na sua. Login repetido vale dentro da mesma igreja.';
+ $('usSave').innerHTML='💾 Cadastrar';
+ $('usCancel').style.display='none';
+}
+function editUser(login,ig){
+ const u=USUARIOS.find(x=>x.user===login&&(ig===undefined||x.igreja===ig));
+ if(!u)return;
+ if(!canManageUser(u)){toast('Você só gerencia usuários da sua igreja');return}
+ usEdit=login;usEditIg=(ig===undefined?null:ig);
+ fillIgrejas();
+ if(u.igreja==='*'||CHURCHES.includes(u.igreja))$('usIgreja').value=u.igreja;
+ usDepSel=new Set(u.dep||[]);          // marca as caixas do cadastro dele
+ fillDeps();
+ $('usNome').value=u.nome; $('usUser').value=u.user;
+ $('usZap').value=u.zap||''; $('usSenha').value=u.senha||'';
+ $('usNivel').value=u.nivel; nivelChanged();
+ $('usTitle').textContent='✏️ Alterar usuário';
+ $('usSub').textContent='Editando @'+u.user+'. Salve as mudanças ou cancele a edição.';
+ $('usSave').innerHTML='💾 Salvar alterações';
+ $('usCancel').style.display='';
+ renderUserList();
+ setTimeout(()=>$('usNome').focus(),80);
+}
+
+/* ---- Etapa 3: cadastro de usuários no Supabase (Auth + public.users) ---- */
+function sbIgUuid(nomeIg){                     // '*' = distrital (church_id nulo)
+ if(!nomeIg||nomeIg==='*')return {ok:true,id:null};
+ const u=SBID[nomeIg];
+ return u?{ok:true,id:u}:{ok:false,id:null};
+}
+async function sbFn(acao,corpo){              // Edge Function (Admin API) – null = não publicada
+ if(!sbAtivo()||!SB||!SB.functions||!SB.functions.invoke)return null;
+ try{
+  const r=await SB.functions.invoke('criar-usuario',{body:Object.assign({acao:acao},corpo)});
+  if(r&&r.error){
+   if(r.error.context&&r.error.context.status===404)return null;   // função ainda não publicada -> caminho antigo
+   return {erro:(r.data&&r.data.erro)||r.error.message||'erro na função'};
+  }
+  return (r&&r.data)||{};
+ }catch(e){return {erro:e.message||String(e)}}
+}
+async function sbNovaConta(login,senha,churchId){
+ // 1) Edge Function: Admin API – sem limite de contas novas por hora do plano gratuito
+ const fn=await sbFn('criar',{login:login,senha:senha,church_id:churchId||null});
+ if(fn&&fn.auth_id)return fn.auth_id;         // conta criada SEM trocar a sessão do admin
+ if(fn&&fn.erro){sbErro('criar o acesso de @'+login,fn.erro);return null}
+ // 2) fallback: signUp público (tem limite por hora no plano gratuito)
+ const atual=await SB.auth.getSession();
+ const admin=atual&&atual.data&&atual.data.session;
+ const adminUid=admin&&admin.user&&admin.user.id;
+ let userId=null, falha=null;
+ try{
+  const r=await SB.auth.signUp({email:sbEmail(login),password:senha});
+  if(r&&r.error)throw r.error;
+  userId=(r&&r.data&&r.data.user)?r.data.user.id:null;
+  if(!userId)falha={message:'a conta não foi criada'};
+ }catch(e){falha=e||{message:'erro ao criar a conta'}}
+ // o signUp troca o token do cliente: SEMPRE devolve a sessão do Admin Distrital
+ // antes de gravar o cadastro (senão a gravação faria RLS como o usuário novo)
+ if(admin){
+  try{await SB.auth.setSession({access_token:admin.access_token,refresh_token:admin.refresh_token})}
+  catch(e){falha=falha||{message:'não deu para voltar para a sessão do Admin Distrital'}}
+  try{
+   const g=await SB.auth.getUser();
+   if(!g.error&&g.data&&g.data.user&&adminUid&&g.data.user.id!==adminUid)
+    falha=falha||{message:'o token não voltou para o Admin Distrital'};
+  }catch(e){}
+ }
+ if(falha){
+  const m=(falha.message)||String(falha);
+  sbErro('criar o acesso de @'+login,
+    /already|registr|exist/i.test(m)
+     ? 'esse login já tem uma conta — use outro apelido (a senha só é trocada pelo Admin Distrital)'
+     : /rate limit|too many requests|exceed/i.test(m)
+     ? 'o Supabase limita contas novas por hora no plano gratuito — aguarde um pouco e tente de novo'
+     : falha);
+  return null;
+ }
+ return userId;                                // auth.users.id do usuário novo
+}
+async function saveUser(){
+ if(!canAdmin()){toast('Somente administradores gerenciam usuários');return}
+ const nome=$('usNome').value.trim(), user=$('usUser').value.trim();
+ if(!nome||!user){toast('Preencha nome e usuário');return}
+ const senha=($('usSenha').value||'').trim();
+ const dados={nome,user,zap:$('usZap').value.trim(),senha:senha||'•••',
+   nivel:$('usNivel').value,igreja:$('usIgreja').value,
+   dep:[...usDepSel]};
+
+ if(usEdit){                                   // ---- alterando ----
+  const alvo=USUARIOS.find(x=>x.user===usEdit&&(usEditIg===null||x.igreja===usEditIg));
+  if(!alvo){cancelUserEdit();renderUserList();toast('Usuário não encontrado');return}
+  if(USUARIOS.some(x=>x!==alvo&&x.igreja===dados.igreja&&x.user.toLowerCase()===user.toLowerCase())){toast('Esse usuário já existe nessa igreja');return}
+  if(!canManageUser(alvo)){toast('Você só gerencia usuários da sua igreja');return}
+  if(sbAtivo()){                               // Etapa 3: grava no banco antes de mexer na tela
+   if(!alvo.uid){toast('⚠️ Não achei esse cadastro no Supabase');return}
+   const ig=sbIgUuid(dados.igreja);
+   if(!ig.ok){toast('⚠️ Igreja desconhecida no Supabase: '+dados.igreja);return}
+   if(senha){toast('A senha não é alterada por aqui – peça ao Admin Distrital para recriar o acesso.');return}
+   const r=await sbResposta('salvar o usuário',()=>SB.from('users').update({
+     login:dados.user,nome:dados.nome,zap:dados.zap,nivel:dados.nivel,
+     church_id:ig.id,dep:dados.dep}).eq('id',alvo.uid));
+   if(!r)return;
+  }
+  if(sbAtivo())delete dados.senha;            // nuvem não guarda senha em public.users
+  Object.assign(alvo,dados);
+  cancelUserEdit();
+  renderUserList();
+  toast('Usuário alterado ✔');
+  return;
+ }
+ // ---- cadastrando ----
+ if(USUARIOS.some(x=>x.igreja===dados.igreja&&x.user.toLowerCase()===user.toLowerCase())){toast('Esse usuário já existe nessa igreja');return}
+ if(sbAtivo()){
+  if(senha.length<6){toast('A senha precisa de pelo menos 6 caracteres');return}
+  const ig=sbIgUuid(dados.igreja);
+  if(!ig.ok){toast('⚠️ Igreja desconhecida no Supabase: '+dados.igreja);return}
+  const authId=await sbNovaConta(user,senha,ig.id);
+  if(!authId)return;                           // o aviso da falha já apareceu
+  const r=await sbResposta('cadastrar o usuário',()=>SB.from('users').insert({
+    auth_id:authId,login:dados.user,nome:dados.nome,zap:dados.zap,
+    nivel:dados.nivel,church_id:ig.id,dep:dados.dep}).select('id').single());
+  if(!r||!r.data){
+   toast('⚠️ O acesso foi criado, mas o cadastro não gravou – cadastre o usuário de novo.');
+   return;
+  }
+  clearUserForm();
+  renderUserList();
+  toast('Usuário cadastrado ✔');
+  await sbRecarregar();
+  return;
+ }
+ USUARIOS.push(dados);
+ clearUserForm();
+ renderUserList();
+ toast('Usuário cadastrado ✔');
+}
+
+async function delUser(login,ig){
+ const u=USUARIOS.find(x=>x.user===login&&(ig===undefined||x.igreja===ig));
+ if(!u)return;
+ if(!canManageUser(u)){toast('Você só gerencia usuários da sua igreja');return}
+ if(u.nivel==='admin_dist'&&USUARIOS.filter(x=>x.nivel==='admin_dist').length<=1){
+   toast('Deve permanecer pelo menos 1 Admin Distrital');return}
+ if(!confirm('Excluir o usuário "@'+u.user+'" ('+u.nome+')?\n\nEssa ação não pode ser desfeita.'))return;
+ if(sbAtivo()){                               // Etapa 3: apaga o cadastro (e o acesso, pela Edge Function)
+  if(!u.uid){toast('⚠️ Não achei esse cadastro no Supabase');return}
+  if(!await sbEnvia('excluir o usuário',()=>SB.from('users').delete().eq('id',u.uid)))return;
+  var fnExcluir=await sbFn('excluir',{auth_id:u.auth||null});  // apaga também a conta Auth (deixa o apelido livre)
+  if(fnExcluir&&fnExcluir.erro)sbErro('apagar o acesso de @'+u.user,fnExcluir.erro);
+ }
+ USUARIOS=USUARIOS.filter(x=>x!==u);
+ if(usEdit===u.user&&(usEditIg===null||usEditIg===u.igreja))cancelUserEdit();
+ renderUserList();
+ toast(sbAtivo()
+   ?(fnExcluir&&fnExcluir.ok
+      ?'Usuário excluído ✔ – cadastro e acesso de login removidos (o apelido ficou livre).'
+      :'Usuário excluído ✔ – o cadastro saiu do sistema e ele não entra mais. Atenção: o apelido continua ocupado no login (para liberar, restaure o acesso dele).')
+   :'Usuário excluído ✔');
+}
+
+function renderUserList(){
+ const nv={visitante:'Membro',membro:'Membro/Líder',admin_local:'Admin Local',admin_dist:'Admin Distrital'};
+ const lista=USUARIOS.filter(u=>S.role!=='admin_local'||u.igreja===ROLES.admin_local.myChurch);
+ const cont=(lista.length===USUARIOS.length)?lista.length:lista.length+' de '+USUARIOS.length;
+ $('usList').innerHTML='<div class="chlisthead">Usuários ('+cont+')</div>'+
+  lista.map(u=>{
+   const deps=escOf(u.dep.map(id=>{const d=D(id);return d?d.n:id}).join(', '));
+   const q=escOf(u.user.replace(/'/g,"\\'"));const ig=escOf(u.igreja.replace(/'/g,"\\'"));
+   const btns=canManageUser(u)?`
+     <button class="btn azul mini" title="Alterar usuário" onclick="editUser('${q}','${ig}')">✏️ Alterar</button>
+     <button class="btn mini del" title="Excluir usuário" onclick="delUser('${q}','${ig}')">🗑 Excluir</button>`:'';
+   return `<div class="urow chrow">
+     <div class="chnm"><b>${escOf(u.nome)}</b> <span class="uid">@${escOf(u.user)}</span>
+       <span class="utag">${nv[u.nivel]}</span>
+       <div class="usub">${u.igreja==='*'?'todas as igrejas':escOf(u.igreja)}${deps?' · '+deps:''} · 📵 ${escOf(u.zap||'—')}</div></div>
+     ${btns}</div>`;
+  }).join('');
+}
+
+/* ---------- permissões ---------- */
+function setRole(v){
+ S.role=v;
+ render();
+ renderChurches();
+}
+function setMyChurch(c){              // cada igreja tem o SEU Admin Local (seletor do topo)
+ if(!CHURCHES.includes(c))return;
+ ROLES.admin_local.myChurch=c;
+ render();
+ toast('Admin Local da igreja: '+c);
+}
+
+/* ---------- módulos ---------- */
+function switchMod(m){
+ S.mod=m;
+ document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
+ if(m==='escalas') S.on=new Set(DEPTS.map(d=>d.id));
+ if(m==='pastoral') S.on=new Set(DEPTS.filter(d=>d.past).map(d=>d.id));
+ if(m==='assoc') S.on=new Set(DEPTS.filter(d=>d.assoc).map(d=>d.id));
+ render();
+}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchMod(b.dataset.m));
+
+/* ---------- navegação ---------- */
+function nav(k){let m=S.m+k,y=S.y;if(m<0){m=11;y--}if(m>11){m=0;y++}S.m=m;S.y=y;render()}
+function goToday(){const d=new Date();S.y=d.getFullYear();S.m=d.getMonth();render()}
+function setYear(y){S.y=y;render()}
+function toggleHide(v){S.hidden=v;document.body.classList.toggle('hidesmall',v)}
+function toggleOffDays(v){S.showOff=!!v;renderCal()}   // escalas dos dias que são de outro mês
+function setAll(v){S.on=new Set(v?deptList().map(d=>d.id):[]);renderSide();renderCal()}
+function setMine(){
+ const mine=deptList().filter(d=>canEdit(d.id)).map(d=>d.id);
+ S.on=new Set(mine.length?mine:deptList().slice(0,2).map(d=>d.id));
+ renderSide();renderCal();
+ toast(mine.length?'Mostrando só as suas agendas':'Nenhuma agenda sua – mostrando 2 exemplos');
+}
+
+/* ---------- lista de oficiais ---------- */
+const OFKEY='escalaOficiais';
+const OF_SEED=[
+  ["Ação Solidária Adventista (ASA)","Colaborador (a)","Ana Maria Pereira Da Silva Medeiros"],
+  ["Ação Solidária Adventista (ASA)","Colaborador (a)","Ivanaria Nunes Serra Santos"],
+  ["Ação Solidária Adventista (ASA)","Colaborador (a)","Normelia Cardoso Neves"],
+  ["Ação Solidária Adventista (ASA)","Colaborador (a)","Rosely Ribeiro Nunes"],
+  ["Ação Solidária Adventista (ASA)","Diretor(a) Associado(a)","Tatiane de Oliveira Costa"],
+  ["Ação Solidária Adventista (ASA)","Diretor(a)","Lilian Neves Rodrigues"],
+  ["Ancionato/Diretoria","Ancião(a)","Keven Silveira Freire"],
+  ["Ancionato/Diretoria","Primeiro Ancião","Altair Farina"],
+  ["Clube de Desbravadores","Diretor assistente","Pamela Cristina Cunha Seemund"],
+  ["Clube de Desbravadores","Diretor associado","Jordao Vaz Rodrigues"],
+  ["Clube de Desbravadores","Diretor associado","Kimberly Karinne Santana Gomes"],
+  ["Clube de Desbravadores","Diretor","Daniel Correa Gomes Junior"],
+  ["Comunicação","Diretor(a) Associado(a)","Jeova Dos Santos Silva"],
+  ["Diaconato","Diácono Teen","Juan David Villalba Bottaro"],
+  ["Diaconato","Diácono","Altair Farina"],
+  ["Diaconato","Diácono","André Krummenauer Santana"],
+  ["Diaconato","Diácono","Antonio Lucas Sousa Fernandes"],
+  ["Diaconato","Diácono","Jeova Dos Santos Silva"],
+  ["Diaconato","Diácono","Jose Nunes Netto"],
+  ["Diaconato","Diácono","Juan Carlos Villalba Garcia"],
+  ["Diaconato","Diácono","Keven Silveira Freire"],
+  ["Diaconato","Diácono","Paulo Silva de Oliveira"],
+  ["Diaconisas","Diaconisa","Ana Lúcia Camargo"],
+  ["Diaconisas","Diaconisa","Elaine Cristina Cardoso de Oliveira"],
+  ["Diaconisas","Diaconisa","Erilayne Silva Santana Freire"],
+  ["Diaconisas","Diaconisa","Franciele Cristina Arruda Vianna Santana"],
+  ["Diaconisas","Diaconisa","Isis Vitória Crispim Fernandes"],
+  ["Diaconisas","Diaconisa","Kimberly Karinne Santana Gomes"],
+  ["Diaconisas","Diaconisa","Lilian Neves Rodrigues"],
+  ["Diaconisas","Diaconisa","Normelia Cardoso Neves"],
+  ["Diaconisas","Diaconisa","Samira dos Santos Pereira"],
+  ["Diaconisas","Diaconisa","Tatiane de Oliveira Costa"],
+  ["Escola Sabatina","Colaborador Teen","Juan Pablo Souza Lima"],
+  ["Escola Sabatina","Diretor","Tatiane de Oliveira Costa"],
+  ["Escola Sabatina","Professor(a) Associado","Pedro Henrique Nunes Siqueira"],
+  ["Escola Sabatina","Professor(a)","Altair Farina"],
+  ["Escola Sabatina","Professor(a)","Magdiel Correa De Araujo"],
+  ["Interessados","Coordenador(a)","Antonio Lucas Sousa Fernandes"],
+  ["Ministério da Criança","Colaborador","Elaine Cristina Cardoso de Oliveira"],
+  ["Ministério da Criança","Colaborador","Isis Vitória Crispim Fernandes"],
+  ["Ministério da Criança","Colaborador","Rosely Ribeiro Nunes"],
+  ["Ministério da Criança","Diretor","Erilayne Silva Santana Freire"],
+  ["Ministério da Família","Diretor(a)","Elaine Cristina Cardoso de Oliveira"],
+  ["Ministério da Família","Diretor(a)","Paulo Silva de Oliveira"],
+  ["Ministério da Mulher","Colaborador","Kathleen Isabelly de Oliveira Belle Araujo"],
+  ["Ministério da Mulher","Colaborador","Lilian Neves Rodrigues"],
+  ["Ministério da Mulher","Diretor","Ana Lúcia Camargo"],
+  ["Ministério da Música","Colaborador Teen","Mitchello Rene"],
+  ["Ministério da Música","Diretor de Sonoplastia","André Krummenauer Santana"],
+  ["Ministério da Música","Diretor(a) Associado(a)","Isabelly Vicenti Tabaczenski da Luz"],
+  ["Ministério da Música","Diretor(a) Associado(a)","Kimberly Karinne Santana Gomes"],
+  ["Ministério da Música","Diretor(a) Associado(a)","Victor De Oliveira Nogueira"],
+  ["Ministério da Música","Diretor","Lilian Neves Rodrigues"],
+  ["Ministério da Recepção","Coordenador(a)","Samira dos Santos Pereira"],
+  ["Ministério da Recepção","Diretor(a) Associado(a)","Isis Vitória Crispim Fernandes"],
+  ["Ministério dos Adolescentes","Colaborador (a)","Jeova Dos Santos Silva"],
+  ["Ministério dos Adolescentes","Colaborador (a)","Samira dos Santos Pereira"],
+  ["Ministério dos Adolescentes","Coordenador(a) Distrital","Keven Silveira Freire"],
+  ["Ministério dos Adolescentes","Diretor(a)","Keven Silveira Freire"],
+  ["Ministério Pessoal","Diretor(a)","Antonio Lucas Sousa Fernandes"],
+  ["Mordomia Cristã","Diretor(a)","Altair Farina"],
+  ["Secretaria","Secretário(a) Distrital","Sandra Regina Vendramini Negri"],
+  ["Secretaria","Coordenador(a)","Sandra Regina Vendramini Negri"],
+  ["Secretaria","Editor(a)","Sandra Regina Vendramini Negri"],
+  ["Secretaria","Secretário (a) teen","Nicolas Miguel de Souza Lima"],
+  ["Secretaria","Secretário(a) Associado(a)","Franciele Cristina Arruda Vianna Santana"],
+  ["Secretaria","Secretário(a) Associado(a)","Kathleen Isabelly de Oliveira Belle Araujo"],
+  ["Secretaria","Secretário(a)","Dalila de Melo"],
+  ["Sociedade adventista da juventude","Diretor associado","André Argomedo da Luz"],
+  ["Sociedade adventista da juventude","Diretor","Kathleen Isabelly de Oliveira Belle Araujo"],
+  ["Tesouraria","Tesoureiro (a) teen","Juan Pablo Souza Lima"],
+  ["Tesouraria","Tesoureiro(a) Associado(a)","Catriel Da Rocha Renz"],
+  ["Tesouraria","Tesoureiro(a)","Magdiel Correa De Araujo"]
+];
+let OFSTORE={}, OFPDF={};
+
+function loadOf(){
+ try{OFSTORE=JSON.parse(localStorage.getItem(OFKEY)||'null')}catch(e){OFSTORE=null}
+ if(!OFSTORE||typeof OFSTORE!=='object')OFSTORE={};
+ try{OFPDF=JSON.parse(localStorage.getItem(OFKEY+'Pdf')||'null')}catch(e){OFPDF=null}
+ if(!OFPDF||typeof OFPDF!=='object')OFPDF={};
+ migraIg(OFSTORE); migraIg(OFPDF);        // dados da igreja renomeada acompanham
+ // semente única: só na 1ª carga (se não, renomear a igreja faria ela "ressuscitar" com o nome antigo)
+ let feito=false; try{feito=localStorage.getItem(OFKEY+'Seed')==='1'}catch(e){}
+ if(!feito){
+   if(!OFSTORE['IASD Jardim Kakimori']&&CHURCHES.includes('IASD Jardim Kakimori'))
+     OFSTORE['IASD Jardim Kakimori']=OF_SEED.map(a=>({d:a[0],c:a[1],r:a[2]}));
+   try{localStorage.setItem(OFKEY+'Seed','1')}catch(e){}
+ }
+ // higiene: apaga dados de igrejas que já não existem (órfãos de exclusões antigas)
+ Object.keys(OFSTORE).forEach(k=>{if(!CHURCHES.includes(k))delete OFSTORE[k]});
+ Object.keys(OFPDF ).forEach(k=>{if(!CHURCHES.includes(k))delete OFPDF[k]});
+ saveOf();
+}
+function saveOf(){try{localStorage.setItem(OFKEY,JSON.stringify(OFSTORE))}catch(e){toast('Não deu para salvar a lista (armazenamento cheio)')}}
+function savePdf(){try{localStorage.setItem(OFKEY+'Pdf',JSON.stringify(OFPDF))}catch(e){toast('Não deu para salvar o PDF (armazenamento cheio)')}}
+function ofRows(){const c=S.church||'-';if(!OFSTORE[c])OFSTORE[c]=[];return OFSTORE[c]}
+function escOf(s){return String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
+function semPermissao(){toast('Somente administradores gerenciam a lista de oficiais');return false}
+
+let ofEdit=null;    // índice em edição (null = cadastrando)
+
+function renderOf(){
+ const ch=S.church||'—';
+ const all=ofRows();
+ const q=($('ofBusca').value||'').trim(), ql=q.toLowerCase();
+ const rows=ql?all.filter(o=>(o.d+' '+o.c+' '+o.r).toLowerCase().indexOf(ql)>-1):all;
+ const deps=[...new Set(all.map(o=>o.d))];
+ const adm=canAdmin();
+ $('ttl3').textContent='Lista de Oficiais';
+ $('chBadge3').textContent='⛪ '+ch;
+ $('ofInfo').innerHTML='👥 <b>'+all.length+'</b> oficial'+(all.length===1?'':'es')+
+   ' · <b>'+deps.length+'</b> departamento'+(deps.length===1?'':'s')+
+   (q?' · <b>'+rows.length+'</b> resultado(s) para “'+escOf(q)+'”':'');
+ $('ofNew').style.display=adm?'':'none';
+ $('ofPaste').style.display=adm?'':'none';
+ $('ofAttach').style.display=adm?'':'none';
+
+ let h='';
+ if(!rows.length){
+   h='<div class="ofemp">'+(all.length
+      ? '🔍 Nenhum oficial encontrado para “'+escOf(q)+'”.'
+      : '👥 Nenhum oficial cadastrado nesta igreja ainda.'+
+        (adm?'<div><button class="btn azul" onclick="openOf()">＋ Cadastrar o primeiro oficial</button> '+
+             '<button class="btn roxo" onclick="openPaste()">📥 Colar do Excel</button></div>':''))+'</div>';
+ }else{
+   let depAnt=null;
+   h='<table class="oftab"><thead><tr><th>Departamento</th><th>Cargo</th><th>Responsável</th>'+
+     (adm?'<th class="cAcoes"></th>':'')+'</tr></thead><tbody>';
+   for(const o of rows){
+     const i=all.indexOf(o), novoDep=(o.d!==depAnt); depAnt=o.d;
+     h+='<tr><td class="cDep">'+(novoDep?escOf(o.d):'')+'</td>'+
+        '<td class="cCar">'+escOf(o.c)+'</td>'+
+        '<td class="cResp">'+escOf(o.r)+'</td>'+
+        (adm?'<td class="cAcoes"><button class="btn mini azul" title="Alterar" onclick="openOf('+i+')">✏️</button> '+
+              '<button class="btn mini del" title="Excluir" onclick="delOf('+i+')">🗑</button></td>':'')+
+        '</tr>';
+   }
+   h+='</tbody></table>';
+ }
+ $('ofWrap').innerHTML=h;
+
+ const an=OFPDF[ch];
+ $('ofPdfBox').style.display=an?'':'none';
+ if(an)$('ofPdfBox').innerHTML='📎 <b>'+escOf(an.nome)+'</b> · anexo oficial '+
+   '<button class="btn mini azul" onclick="verPdf()">👁 Visualizar</button> '+
+   '<button class="btn mini azul" onclick="baixarPdf()">📥 Baixar</button> '+
+   (adm?'<button class="btn mini del" onclick="removerPdf()">🗑 Remover</button>':'');
+ // o anexo também aparece no impresso (PDF gerado pelo navegador)
+ $('ofPrintAnexo').textContent=an?('Anexo oficial desta igreja: '+an.nome+' (arquivo disponível na tela)'):'';
+
+ $('ofPrintCh').textContent=ch;
+ $('ofPrintSub').textContent='Data base: '+new Date().toLocaleDateString('pt-BR')+' · '+
+   all.length+' oficial'+(all.length===1?'':'es')+' · '+deps.length+' departamento'+(deps.length===1?'':'s');
+}
+
+/* ---- cadastro (alterar / excluir) ---- */
+function openOf(i){
+ if(!canAdmin())return semPermissao();
+ ofEdit=(i===undefined||i===null)?null:i;
+ const all=ofRows();
+ const deps=[...new Set(all.map(o=>o.d))];
+ $('ofDeps').innerHTML=deps.map(d=>'<option value="'+escOf(d)+'">').join('');
+ if(ofEdit===null){$('ofD').value='';$('ofC').value='';$('ofR').value='';}
+ else{const o=all[ofEdit];$('ofD').value=o.d;$('ofC').value=o.c;$('ofR').value=o.r;}
+ $('ofT').textContent=ofEdit===null?'＋ Novo oficial':'✏️ Alterar oficial';
+ $('ofSave').innerHTML=ofEdit===null?'💾 Cadastrar':'💾 Salvar alterações';
+ $('ofOvl').classList.add('on');
+ setTimeout(()=>$('ofD').focus(),80);
+}
+function closeOf(){$('ofOvl').classList.remove('on');ofEdit=null}
+/* ---- Etapa 3: oficiais e programação são 1 linha por igreja (upsert por church_id) ---- */
+async function sbOfPush(){                        // grava lista + PDF da igreja aberta
+ if(!sbAtivo())return;
+ const uuid=sbIgId(); if(!uuid)return;
+ const p=OFPDF[S.church]||null;
+ await sbEnvia('salvar a lista de oficiais',()=>SB.from('officers')
+   .upsert({church_id:uuid,linhas:OFSTORE[S.church]||[],pdf_nome:p?p.nome:null,pdf_dados:p?p.dados:null},
+           {onConflict:'church_id'}));
+}
+async function sbPgPush(){                        // grava a programação da igreja aberta
+ if(!sbAtivo())return;
+ const uuid=sbIgId(); if(!uuid)return;
+ await sbEnvia('salvar a programação',()=>SB.from('programs')
+   .upsert({church_id:uuid,dados:PGSTORE[S.church]||[]},{onConflict:'church_id'}));
+}
+function salvarOf(){
+ if(!canAdmin())return semPermissao();
+ const d=$('ofD').value.trim(), c=$('ofC').value.trim(), r=$('ofR').value.trim();
+ if(!d||!c||!r){toast('Preencha departamento, cargo e responsável');return}
+ const novo=(ofEdit===null), all=ofRows();
+ if(novo)all.push({d,c,r});
+ else{all[ofEdit].d=d;all[ofEdit].c=c;all[ofEdit].r=r}
+ saveOf();closeOf();renderOf();sbOfPush();
+ toast(novo?'Oficial cadastrado ✔':'Oficial alterado ✔');
+}
+function delOf(i){
+ if(!canAdmin())return semPermissao();
+ const all=ofRows(), o=all[i]; if(!o)return;
+ if(!confirm('Excluir "'+o.r+'" ('+o.c+' – '+o.d+')?\n\nEssa ação não pode ser desfeita.'))return;
+ all.splice(i,1);saveOf();renderOf();sbOfPush();toast('Oficial excluído ✔');
+}
+
+/* ---- colar do Excel / Word ---- */
+function openPaste(){
+ if(!canAdmin())return semPermissao();
+ $('ofPasteTxt').value='';$('ofPasteOvl').classList.add('on');
+ setTimeout(()=>$('ofPasteTxt').focus(),80);
+}
+function closePaste(){$('ofPasteOvl').classList.remove('on')}
+function colarOf(){
+ if(!canAdmin())return semPermissao();
+ const txt=$('ofPasteTxt').value||'';
+ const linhas=txt.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+ let n=0, depAtual='', avisado=false;
+ for(const l of linhas){
+   let p=l.indexOf('\t')>-1?l.split('\t'):(l.indexOf(';')>-1?l.split(';'):l.split(/\s{2,}/));
+   p=p.map(s=>s.trim()).filter(Boolean);
+   if(p.length<2)continue;
+   if(/^departamento$/i.test(p[0])||/^cargo$/i.test(p[1]||''))continue;   // linha de cabeçalho
+   let d,c,r;
+   if(p.length>=3){d=p[0];c=p[1];r=p.slice(2).join(' ');depAtual=d}
+   else{d=depAtual;c=p[0];r=p[1]}
+   if(!d){if(!avisado){toast('Faltou o departamento – informe-o na 1ª linha');avisado=true}continue}
+   if(!c||!r)continue;
+   ofRows().push({d,c,r});n++;
+ }
+ if(!n){toast('Não consegui ler as linhas – cole 3 colunas: Departamento, Cargo, Responsável');return}
+ saveOf();closePaste();renderOf();sbOfPush();
+ toast(n+' oficial'+(n===1?'':'es')+' importado'+(n===1?'':'s')+' ✔');
+}
+
+/* ---- anexo PDF oficial ---- */
+function anexarPdf(){
+ if(!canAdmin())return semPermissao();
+ $('ofFile').value='';$('ofFile').click();
+ return true;
+}
+function verPdf(){
+ const p=OFPDF[S.church];
+ if(!p){toast('Nenhum PDF anexado nesta igreja');return false}
+ try{
+   // vira Blob: o Chrome bloqueia abrir data: URLs em nova aba
+   const bin=atob(String(p.dados).split(',')[1]||'');
+   const url=URL.createObjectURL(new Blob([Uint8Array.from(bin,c=>c.charCodeAt(0))],{type:'application/pdf'}));
+   window.open(url,'_blank');
+   setTimeout(()=>URL.revokeObjectURL(url),60000);
+ }catch(e){
+   toast('Não consegui abrir aqui – use "📥 Baixar"');
+   return false;
+ }
+ return true;
+}
+function pdfEscolhido(inp){
+ const f=inp.files&&inp.files[0]; if(!f)return;
+ if(f.type&&f.type!=='application/pdf'){toast('Só aceito arquivo PDF');return}
+ if(f.size>2*1024*1024){toast('Arquivo grande demais – máximo 2 MB');return}
+ const fr=new FileReader();
+ fr.onload=()=>{OFPDF[S.church]={nome:f.name,dados:fr.result};savePdf();renderOf();sbOfPush();toast('PDF anexado ✔')};
+ fr.onerror=()=>toast('Não consegui ler o arquivo');
+ fr.readAsDataURL(f);
+}
+function baixarPdf(){
+ const p=OFPDF[S.church]; if(!p)return;
+ const a=document.createElement('a');a.href=p.dados;a.download=p.nome;
+ document.body.appendChild(a);a.click();a.remove();
+}
+function removerPdf(){
+ if(!canAdmin())return semPermissao();
+ if(!confirm('Remover o anexo PDF desta igreja?'))return;
+ delete OFPDF[S.church];savePdf();renderOf();sbOfPush();toast('Anexo removido ✔');
+}
+
+/* ---------- programação ---------- */
+const PGKEY='escalaProg';
+const PGVER=2;                       // v2 = programações reais das igrejas (06/10)
+const PG_SEED=[                      // programação enviada pelo usuário – vale para TODAS as igrejas
+ {t:'Culto de Domingo',dia:'Domingo',data:'',obs:'',itens:[
+   {h:'07h30',a:'Boas-Vindas',r:''},
+   {h:'07h30',a:'Louvores',r:''},
+   {h:'07h40',a:'Oração Inicial',r:''},
+   {h:'07h45',a:'Ofertório',r:''},
+   {h:'07h50',a:'Oração Ofertas',r:''},
+   {h:'07h55',a:'Momento Vida e Saúde',r:''},
+   {h:'08h00',a:'Mensagem Musical',r:''},
+   {h:'08h00',a:'Meditação',r:''},
+   {h:'08h30',a:'Oração Final',r:''}]},
+ {t:'Culto de Quarta',dia:'Quarta',data:'',obs:'',itens:[
+   {h:'07h30',a:'Boas-Vindas',r:''},
+   {h:'07h30',a:'Louvores',r:''},
+   {h:'07h40',a:'Oração Inicial',r:''},
+   {h:'07h45',a:'Ofertório',r:''},
+   {h:'07h50',a:'Oração Ofertas',r:''},
+   {h:'07h55',a:'Pedidos e Agradecimentos',r:''},
+   {h:'08h00',a:'Meditação',r:''},
+   {h:'08h30',a:'Oração Final',r:''}]},
+ {t:'Programação de Sábado',dia:'Sábado',data:'',obs:'',itens:[
+   {b:'Escola Sabatina',h:'08h45',a:'Louvores',r:''},
+   {b:'Escola Sabatina',h:'09h00',a:'Abertura',r:''},
+   {b:'Escola Sabatina',h:'09h00',a:'Louvor em pé',r:''},
+   {b:'Escola Sabatina',h:'09h00',a:'Oração',r:''},
+   {b:'Escola Sabatina',h:'09h00',a:'Informativos Mundial das Missões',r:''},
+   {b:'Escola Sabatina',h:'09h15',a:'Kahoot',r:''},
+   {b:'Escola Sabatina',h:'09h20',a:'Recapitulação da lição',r:''},
+   {b:'Escola Sabatina',h:'10h05',a:'Encerramento',r:''},
+   {b:'Escola Sabatina',h:'10h07',a:'Hino Final/Mensagem Musical',r:''},
+   {b:'Culto Divino',h:'10h10',a:'Momento dos anúncios',r:''},
+   {b:'Culto Divino',h:'10h15',a:'Adoração Infantil',r:''},
+   {b:'Culto Divino',h:'10h25',a:'Provai e Vede',r:''},
+   {b:'Culto Divino',h:'10h30',a:'Ofertório',r:''},
+   {b:'Culto Divino',h:'10h33',a:'Louvores',r:''},
+   {b:'Culto Divino',h:'10h42',a:'Momento de oração (ministério da família)',r:''},
+   {b:'Culto Divino',h:'10h50',a:'Mensagem musical se houver',r:''},
+   {b:'Culto Divino',h:'10h55',a:'Início do sermão',r:''},
+   {b:'Culto Divino',h:'11h30',a:'Hino despedida',r:''}]}
+];
+let PGSTORE={}, pgEdit=null, PGPRINT=null;
+
+function pgSeed(){return JSON.parse(JSON.stringify(PG_SEED))}
+function loadPg(){
+ try{PGSTORE=JSON.parse(localStorage.getItem(PGKEY)||'null')}catch(e){PGSTORE=null}
+ if(!PGSTORE||typeof PGSTORE!=='object')PGSTORE={};
+ migraIg(PGSTORE);                                   // igreja renomeada: programações acompanham
+ Object.keys(PGSTORE).forEach(k=>{if(k!=='__v'&&!CHURCHES.includes(k))delete PGSTORE[k]});  // órfãs de igrejas excluídas
+ if(PGSTORE.__v!==PGVER){                 // semente nova (ou primeira carga) -> todas as igrejas
+   PGSTORE={__v:PGVER};
+   CHURCHES.forEach(c=>{PGSTORE[c]=pgSeed()});
+ }
+ savePg();
+}
+function savePg(){try{localStorage.setItem(PGKEY,JSON.stringify(PGSTORE))}catch(e){toast('Não deu para salvar a programação (armazenamento cheio)')}}
+function pgRows(){const c=S.church||'-';
+ if(!PGSTORE[c]){ if(sbAtivo())return PGSTORE[c]=[];   // modo Supabase: sem semente de demonstração
+                   PGSTORE[c]=pgSeed();savePg() }      // igreja nova (ou sem dados) recebe a programação
+ return PGSTORE[c]}
+function semPermissaoPg(){toast('Somente administradores gerenciam a programação');return false}
+
+function pgHora(s){const m=/^\s*(\d{1,2})\s*[:hH]\s*(\d{1,2})\s*$/.exec(String(s==null?'':s));
+  return m?{h:+m[1],m:+m[2]}:null}
+function pgNormHora(s){const t=pgHora(s);
+  return t?String(t.h).padStart(2,'0')+'h'+String(t.m).padStart(2,'0'):String(s==null?'':s).trim()}
+function pgSort(itens){
+ const k=h=>{const m=/(\d{1,2})\D+(\d{1,2})/.exec(String(h==null?'':h));return m?(+m[1])*60+(+m[2]):9999};
+ return itens.slice().sort((a,b)=>k(a.h)-k(b.h));     // sort estável: empate mantém a ordem digitada
+}
+function pgQuando(p){
+ let s='📅 '+(p.dia||'');
+ if(p.data){const a=String(p.data).split('-');if(a.length===3)s+=' · '+a[2]+'/'+a[1]+'/'+a[0]}
+ return s;
+}
+function pgTexto(p){
+ let b=null;
+ return pgSort(p.itens).map(i=>{
+   let l='';
+   if(i.b&&i.b!==b){b=i.b;l=b+'\n'}
+   if(!i.b)b=null;
+   return l+i.h+'\t'+i.a+(i.r?'\t'+i.r:'');
+ }).join('\n');
+}
+function pgParse(txt){
+ const linhas=String(txt==null?'':txt).split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+ const out=[]; let bloco='';
+ for(const l of linhas){
+   if(/^(hor[aá]rio|atividade|programa[cç][aã]o|quando)\b/i.test(l))continue;      // linha de cabeçalho
+   let p=l.indexOf('\t')>-1?l.split('\t'):(l.indexOf(';')>-1?l.split(';'):l.split(/\s{2,}/));
+   p=p.map(s=>s.trim()).filter(s=>s!=='');
+   let b=bloco,h=null,a='',r='';
+   if(p.length>=3&&pgHora(p[0])===null&&pgHora(p[1])!==null){b=p[0];bloco=p[0];h=p[1];a=p[2];r=p.slice(3).join(' ')}   // >=3: aceita Bloco·Horário·Atividade (sem responsável)
+   else if(p.length>=2&&pgHora(p[0])!==null){h=p[0];a=p[1];r=p.slice(2).join(' ')}
+   else{
+     const m=/^(\d{1,2}\s*[:hH]\s*\d{1,2})\s+(.+)$/.exec(l);                       // "08h45 Louvores"
+     if(m){h=m[1];a=m[2]}
+     else{bloco=l;continue}                                                        // linha só com texto = faixa de bloco
+   }
+   a=String(a).trim().replace(/^\s*[-–—•*]+\s*/,''); if(!a)continue;   // tira o "- " da planilha
+   out.push({b:b,h:pgNormHora(h),a:a,r:String(r||'').trim()});
+ }
+ return pgSort(out);
+}
+function pgLista(){
+ const all=pgRows();
+ const q=(($('pgBusca')&&$('pgBusca').value)||'').trim().toLowerCase();
+ if(!q)return all;
+ return all.filter(p=>(p.t+' '+(p.dia||'')+' '+(p.obs||'')+' '+
+   p.itens.map(i=>(i.b||'')+' '+i.a+' '+(i.r||'')).join(' ')).toLowerCase().indexOf(q)>-1);
+}
+
+function renderProg(){
+ const ch=S.church||'—', all=pgRows();
+ const q=(($('pgBusca')&&$('pgBusca').value)||'').trim();
+ const base=pgLista();
+ const vis=PGPRINT===null?base:base.filter(p=>all.indexOf(p)===PGPRINT);
+ const adm=canAdmin();
+ const nIt=all.reduce((s,p)=>s+p.itens.length,0);
+ $('ttl4').textContent='Programação';
+ $('chBadge4').textContent='⛪ '+ch;
+ $('pgInfo').innerHTML='📅 <b>'+all.length+'</b> '+(all.length===1?'programação':'programações')+
+   ' · <b>'+nIt+'</b> '+(nIt===1?'atividade':'atividades')+
+   (q?' · <b>'+base.length+'</b> resultado(s) para “'+escOf(q)+'”':'');
+ $('pgNew').style.display=adm?'':'none';
+ $('pgPaste').style.display=adm?'':'none';
+
+ let h='';
+ if(!vis.length){
+   h='<div class="ofemp">'+(all.length
+     ? '🔍 Nenhuma programação encontrada para “'+escOf(q)+'”.'
+     : '📅 Nenhuma programação cadastrada nesta igreja ainda.'+
+       (adm?'<div><button class="btn azul" onclick="openPg()">＋ Cadastrar a primeira</button> '+
+            '<button class="btn roxo" onclick="openPg(true)">📥 Colar do Excel</button></div>':''))+'</div>';
+ }else{
+   h=vis.map(p=>{
+     const gi=all.indexOf(p), its=pgSort(p.itens);
+     let rows='', bAnt='\u0001';
+     for(const it of its){
+       if(it.b&&it.b!==bAnt){bAnt=it.b;rows+='<tr class="pgblk"><td colspan="3">'+escOf(it.b)+'</td></tr>'}
+       else if(!it.b)bAnt='\u0001';
+       rows+='<tr><td class="cH">'+escOf(it.h)+'</td><td class="cAt">'+escOf(it.a)+'</td>'+
+             '<td class="cRe">'+escOf(it.r||'')+'</td></tr>';
+     }
+     return '<div class="pgcard">'+
+      '<div class="pghead"><div class="pgttl"><b>'+escOf(p.t)+'</b><span class="pgq">'+pgQuando(p)+'</span>'+
+        (p.obs?'<span class="pgo">'+escOf(p.obs)+'</span>':'')+'</div>'+
+      '<div class="pgacts">'+
+        (adm?'<button class="btn mini azul" title="Alterar" onclick="openPg(false,'+gi+')">✏️</button> '+
+             '<button class="btn mini del" title="Excluir" onclick="delPg('+gi+')">🗑</button> ':'')+
+        '<button class="btn mini" title="Imprimir só esta programação" onclick="imprimirProg('+gi+')">🖨</button>'+
+      '</div></div>'+
+      '<table class="oftab pgtab"><thead><tr><th>Horário</th><th>Atividade</th><th>Responsável</th></tr></thead>'+
+      '<tbody>'+rows+'</tbody></table></div>';
+   }).join('');
+ }
+ $('pgWrap').innerHTML=h;
+ $('pgPrintCh').textContent=ch;
+ $('pgPrintSub').textContent=vis.length+' programação'+(vis.length===1?'':'ões')+' · '+
+   vis.reduce((s,p)=>s+p.itens.length,0)+' atividade(s) · '+
+   (PGPRINT===null?'todas as visíveis':'só a escolhida')+' · Programação impressa em '+
+   new Date().toLocaleDateString('pt-BR');
+}
+
+/* ---- cadastro (alterar / excluir) ---- */
+function openPg(paste,i){
+ if(!canAdmin())return semPermissaoPg();
+ pgEdit=(i===undefined||i===null)?null:i;
+ $('pgT').textContent=pgEdit===null?'＋ Nova programação':'✏️ Alterar programação';
+ $('pgSave').innerHTML=pgEdit===null?'💾 Cadastrar':'💾 Salvar alterações';
+ if(pgEdit===null){$('pgTitulo').value='';$('pgDia').value='Domingo';$('pgData').value='';$('pgItens').value='';}
+ else{
+   const p=pgRows()[pgEdit]; if(!p)return false;
+   $('pgTitulo').value=p.t; $('pgDia').value=p.dia||'Domingo';
+   if(!$('pgDia').value)$('pgDia').value='Data especial';
+   $('pgData').value=p.data||''; $('pgItens').value=pgTexto(p);
+ }
+ $('pgOvl').classList.add('on');
+ setTimeout(()=>{const el=paste?$('pgItens'):$('pgTitulo');if(el)el.focus()},80);
+ return true;
+}
+function closePg(){$('pgOvl').classList.remove('on');pgEdit=null}
+function salvarPg(){
+ if(!canAdmin())return semPermissaoPg();
+ let txt=String($('pgItens').value||''), t=$('pgTitulo').value.trim();
+ const dia=$('pgDia').value, data=$('pgData').value||'';
+ if(!t){   // colou começando pelo nome? primeira linha só com texto vira o título
+   const l0=txt.split(/\r?\n/).map(s=>s.trim()).filter(Boolean)[0];
+   if(l0&&pgHora(l0)===null&&!/^\d/.test(l0)){t=l0;txt=txt.split(/\r?\n/).slice(1).join('\n')}
+ }
+ const itens=pgParse(txt);
+ if(!t){toast('Dê um título à programação (ex.: Culto de Domingo)');return false}
+ if(!itens.length){toast('Nenhuma atividade com horário – confira as linhas');return false}
+ const novo=(pgEdit===null), all=pgRows();
+ if(novo)all.push({t:t,dia:dia,data:data,obs:'',itens:itens});
+ else{const p=all[pgEdit]; if(!p)return false; p.t=t;p.dia=dia;p.data=data;p.itens=itens}
+ savePg();closePg();renderProg();sbPgPush();
+ toast(novo?'Programação cadastrada ✔':'Programação alterada ✔');
+ return true;
+}
+function delPg(i){
+ if(!canAdmin())return semPermissaoPg();
+ const all=pgRows(), p=all[i]; if(!p)return false;
+ if(!confirm('Excluir a programação "'+p.t+'"?\n\nEssa ação não pode ser desfeita.'))return false;
+ all.splice(i,1);savePg();renderProg();sbPgPush();toast('Programação excluída ✔');return true;
+}
+
+/* ---- impressão (toda a lista ou só uma) ---- */
+function prnProg(){
+ const lista=pgLista();
+ if(!lista.length){toast('Nenhuma programação para imprimir');return}
+ $('prnInfo').innerHTML='O que vai para o papel · ⛪ '+escOf(S.church||'—');
+ let h='<button class="btn azul prnOpt" onclick="imprimirProg(null)"><span>🖨 Todas as programações</span><small>'+
+   lista.length+' programação(ões) — como está na tela agora</small></button>';
+ lista.slice(0,8).forEach(p=>{
+   h+='<button class="btn roxo prnOpt" onclick="imprimirProg('+pgRows().indexOf(p)+')"><span>🖨 '+escOf(p.t)+
+      '</span><small>'+pgQuando(p)+' · '+p.itens.length+' atividades</small></button>';
+ });
+ if(lista.length>8)h+='<button class="btn roxo prnOpt" disabled><span>…</span><small>'+
+   (lista.length-8)+' programação(ões) a mais – use a busca para reduzir</small></button>';
+ $('prnOpts').innerHTML=h;
+ $('prnOvl').classList.add('on');
+}
+function imprimirProg(i){
+ PGPRINT=(i===undefined||i===null)?null:i;
+ closePrn();
+ renderProg();
+ window.print();
+ PGPRINT=null;
+ renderProg();
+ return true;
+}
+
+/* ---------- render ---------- */
+function render(){
+ renderTop(); renderSide();
+ const cal=S.mod==='escalas'||S.mod==='pastoral'||S.mod==='assoc';
+ const ofi=S.mod==='oficiais';
+ const pgv=S.mod==='programacao';
+ $('viewCal').style.display=cal?'':'none';
+ $('viewOfic').style.display=ofi?'':'none';
+ $('viewProg').style.display=pgv?'':'none';
+ $('side').style.display=cal?'':'none';
+ document.body.classList.toggle('semSide',!cal);
+ if(cal) renderCal(); else if(ofi) renderOf(); else renderProg();
+}
+function renderTop(){
+ const t=MESES[S.m]+' de '+S.y;
+ $('ttl').textContent=t;
+ const ch=S.church||'—';
+ $('chSel').style.display=igrejaTravada()?'none':'';
+ // seletor do Admin Local: aparece só no nível Admin Local (cada igreja tem o seu)
+ const al=$('alSel');
+ if(S.role==='admin_local'&&CHURCHES.indexOf(ROLES.admin_local.myChurch)<0)ROLES.admin_local.myChurch=CHURCHES[0];
+ const assinatura=S.role+'|'+CHURCHES.join(',')+'|'+ROLES.admin_local.myChurch;
+ if(S.role==='admin_local'){
+   al.style.display=sbAtivo()?'none':'';      // no Supabase a igreja vem do cadastro
+   if(al._sig!==assinatura){
+     al._sig=assinatura;
+     al.innerHTML=CHURCHES.map(c=>`<option${c===ROLES.admin_local.myChurch?' selected':''}>${escOf(c)}</option>`).join('');
+   }
+ }else al.style.display='none';
+ // seletor do líder: quem é o Membro (Líder) desta igreja (as agendas dele vêm do cadastro)
+ const ld=$('lidSel');
+ if(S.role==='membro'){
+   const lista=lideres(), cur=liderAtual();
+   S.lider=cur?cur.user:null;
+   ld.style.display=sbAtivo()?'none':'';      // no Supabase o líder vem do cadastro
+   const sg='membro|'+S.church+'|'+lista.map(u=>u.user+':'+(u.dep||[]).join(',')).join('|')+'|'+S.lider;
+   if(ld._sig!==sg){
+     ld._sig=sg;
+     ld.innerHTML=lista.length
+       ? lista.map(u=>`<option value="${escOf(u.user)}"${u===cur?' selected':''}>${escOf(u.nome)} — ${escOf(agendasDe(u).join(', ')||'sem agenda')}</option>`).join('')
+       : '<option value="">— nenhum líder cadastrado nesta igreja —</option>';
+   }
+ }else ld.style.display='none';
+ $('chBadge').textContent='⛪ '+ch;
+ $('printSub').textContent=(S.church||'')+' · '+t+' · Agenda gerada em '+new Date().toLocaleDateString('pt-BR');
+}
+function renderSide(){
+ // 6c: do (ano inicial ou atual −2) até (ano inicial ou atual +2): as setas podem ir além e o seletor acompanha
+ const a1=Math.min(anoBase,S.y), a2=Math.max(anoBase,S.y), anos=[];
+ for(let a=a1-2;a<=a2+2;a++)anos.push(a);
+ $('selY').innerHTML=anos.map(y=>`<option ${y===S.y?'selected':''}>${y}</option>`).join('');
+ // mini calendário
+ const first=new Date(S.y,S.m,1).getDay(), days=new Date(S.y,S.m+1,0).getDate(), today=new Date();
+ let h=['D','S','T','Q','Q','S','S'].map(x=>`<div class="mh">${x}</div>`).join('');
+ for(let i=0;i<first;i++)h+='<button class="mut"></button>';
+ for(let d=1;d<=days;d++){
+   const isT=today.getFullYear()===S.y&&today.getMonth()===S.m&&today.getDate()===d;
+   h+=`<button class="${isT?'today':''}" onclick="jump(${d})">${d}</button>`;
+ }
+ $('mini').innerHTML=h;
+ // agendas (grupos com "selecionar todos")
+ let g='';
+ if(S.mod==='pastoral'){
+   const past=DEPTS.filter(d=>d.past).map(d=>d.id);
+   g+=gHead('Pastor Distrital',past);
+   g+=DEPTS.filter(d=>d.past).map(agRow).join('');
+ }else if(S.mod==='assoc'){
+   const ac=DEPTS.filter(d=>d.assoc);
+   if(ac.length){g+=gHead('ANP – Associação',ac.map(d=>d.id));g+=ac.map(agRow).join('')}
+ }else{
+   const deps=DEPTS.filter(d=>!d.past&&!d.assoc).map(d=>d.id);
+   const past=DEPTS.filter(d=>d.past).map(d=>d.id);
+   const ac=DEPTS.filter(d=>d.assoc);
+   g+=gHead('ESCALAS',deps);
+   g+=DEPTS.filter(d=>!d.past&&!d.assoc).map(agRow).join('');
+   g+=gHead('Agenda Pastoral',past);
+   g+=DEPTS.filter(d=>d.past).map(agRow).join('');
+   if(ac.length){g+=gHead('Agenda Associação',ac.map(d=>d.id));g+=ac.map(agRow).join('')}
+ }
+ if(!g)g='<p class="sub">Nenhuma agenda neste módulo. Use o ⚙ Gerenciar agendas para marcar uma agenda como Agenda Pastoral ou Agenda Associação.</p>'
+ $('agList').innerHTML=g;
+ const isAdmin=canAdmin();
+ $('btnDeps').style.display=isAdmin?'':'none';
+ $('depHint').style.display=isAdmin?'':'none';
+ // caixa de administração (cadastrar usuário / igreja)
+ const adm=$('admBox');
+ if(isDistAdmin()){adm.style.display='';$('btnNewCh').style.display='';}
+ else if(S.role==='admin_local'){adm.style.display='';$('btnNewCh').style.display='none';}
+ else adm.style.display='none';
+ // dados de demonstração: só no modo Supabase (no protótipo a semente já existe)
+ const demo=sbAtivo()&&canAdmin();
+ $('btnDemo').style.display=demo?'':'none';
+ $('btnDemoDel').style.display=demo?'':'none';
+ // permissão
+ const r=ROLES[S.role];
+ let perm=r.perm, cls=S.role==='visitante'?'view':'';
+ if(S.role==='admin_local'&&S.church&&S.church!==r.myChurch){
+   perm='👁 Somente visualização – sua igreja é '+r.myChurch;cls='view';
+ }
+ if(S.role==='membro'){                     // mostra QUÊ ele lidera (vem do cadastro)
+   const u=liderAtual(), nomes=u?agendasDe(u).join(', '):'';
+   perm=!u ? 'Nenhum líder cadastrado nesta igreja – cadastre em ⚙ Gerenciar usuários'
+     :!nomes ? (u.nome+' não tem nenhuma agenda marcada em “Agenda que lidera”')
+     : ('Edita somente as agendas em que é líder: '+nomes+' – as demais são só visualização');
+   cls=(u&&nomes)?'':'view';
+ }
+ $('meBox').innerHTML=`<div class="who">${r.badge}</div>
+   <div class="perm ${cls}">${escOf(perm)}</div>
+   <div style="color:var(--dim);font-size:12.5px;margin-top:4px">${canEditAny()?'Clique num dia para criar a escala.':'Clique nos dias apenas para ver.'}</div>`;
+ $('btnNew').style.display=canEditAny()?'':'none';
+}
+function agRow(d){
+ const on=S.on.has(d.id);
+ return `<div class="ag ${on?'on':''}" style="--c:${d.c}" onclick="tog('${d.id}')" title="${escOf(d.full||d.n)}">
+   <div class="box"></div><span>${escOf(d.n)}</span></div>`;
+}
+function gHead(label,ids){
+ const all=ids.length>0&&ids.every(id=>S.on.has(id));
+ return `<div class="ghead"><span>${label}</span>
+   <button class="gtog ${all?'on':''}" onclick="event.stopPropagation();togGroup('${ids.join(',')}')">
+   ${all?'✔ Todos':'Selecionar'}</button></div>`;
+}
+function togGroup(str){
+ const ids=str.split(',');
+ const all=ids.every(id=>S.on.has(id));
+ ids.forEach(id=>all?S.on.delete(id):S.on.add(id));
+ renderSide();renderCal();
+}
+/* ---------- gerenciar departamentos (admin) ---------- */
+const PALETTE=['#2F8CFF','#8B5CF6','#3DDC97','#FF8C1A','#FF5C5C','#FFC93C','#00D1C1','#FF5CA8','#E879F9','#A78BFA','#F97316','#22D3EE','#F472B6','#84CC16'];
+function openDeps(){
+ if(!canAdmin()){toast('Somente o Admin da igreja gerencia agendas');return}
+ renderDeps();$('depOvl').classList.add('on');
+}
+function renderDeps(){
+ const dist=S.role==='admin_dist';
+ $('depRows').innerHTML=DEPTS.map(d=>{
+  const trv=!dist&&isSharedDep(d.id);   // agenda do distrito: só o Admin Distrital altera
+  const dis=trv?'disabled':'';   // agenda do distrito: só o Admin Distrital altera
+  return `
+  <div class="deprow${trv?' trav':''}" style="--c:${d.c}">
+    <input type="color" class="dcolor" value="${d.c}" title="Cor da agenda" ${dis} onchange="depColor('${d.id}',this.value)">
+    <input type="text" class="dname" value="${escOf(d.n)}" ${dis} onchange="depName('${d.id}',this.value)" title="Nome da agenda">
+    <input type="text" class="dsig" maxlength="6" value="${escOf(d.sigla||'')}" ${dis} onchange="depSigla('${d.id}',this.value)" title="Sigla (aparece na frente da escala, ex: Preg_Altair)" placeholder="sigla">
+    <select class="dtype" ${dis} onchange="depType('${d.id}',this.value)">
+      <option value="dep" ${!d.past&&!d.assoc?'selected':''}>Agenda</option>
+      <option value="past" ${d.past?'selected':''}>Agenda Pastoral</option>
+       <option value="assoc" ${d.assoc?'selected':''}>Agenda Associação</option>
+    </select>
+    ${trv?'<span class="travico" title="Agenda do distrito – só o Admin Distrital altera">🔒</span>'
+          :`<button class="delmini" onclick="depDel('${d.id}')" title="Excluir">🗑</button>`}
+  </div>`}).join('')||'<p class="sub">Nenhuma agenda cadastrada.</p>';
+ const bP=$('btnAddPast'),bA=$('btnAddAssoc');
+ if(bP)bP.style.display=dist?'':'none';
+ if(bA)bA.style.display=dist?'':'none';
+}
+async function depColor(id,c){
+ const d=D(id);if(!d)return;if(!podeMexer(id))return;
+ if(sbAtivo()&&!await sbEnvia('atualizar a agenda',()=>SB.from('departments').update({color:c}).eq('id',id)))return;
+ d.c=c;d.full=d.full||d.n;renderDeps();renderSide();renderCal();toast('Cor atualizada ✔');
+}
+async function depName(id,n){
+ n=n.trim();if(!n)return;const d=D(id);if(!d)return;if(!podeMexer(id))return;
+ if(sbAtivo()&&!await sbEnvia('atualizar a agenda',()=>SB.from('departments').update({name:n,tooltip:n}).eq('id',id)))return;
+ d.n=n;d.full=n;renderSide();renderCal();toast('Nome atualizado ✔ (permissões mantidas)');
+}
+async function depSigla(id,s){
+ s=s.trim().replace(/\s+/g,'');const d=D(id);if(!d)return;if(!podeMexer(id))return;
+ if(sbAtivo()&&!await sbEnvia('atualizar a agenda',()=>SB.from('departments').update({sigla:s}).eq('id',id)))return;
+ d.sigla=s;renderCal();toast('Sigla atualizada ✔');
+}
+async function depType(id,v){
+ const d=D(id);if(!d)return;
+ if(!podeMexer(id))return;
+ const dist=(v==='past'||v==='assoc');   // vira agenda do distrito (vale em todas as igrejas)
+ const eraDist=!!SHARED[id];             // já era agenda do distrito?
+ const ig=sbIgId();
+ if(sbAtivo()){                          // Etapa 3: grava o vínculo da agenda no banco
+  const tipoBanco=dist?(v==='past'?'pastoral':'associacao'):'normal';   // o banco usa outras palavras
+  if(dist){
+   if(!await sbResposta('atualizar a agenda',()=>SB.from('departments').update({tipo:tipoBanco,church_id:null}).eq('id',id)))return;
+  }else if(eraDist){
+   if(!ig){toast('⚠️ Escolha uma igreja antes de tirar esta agenda do distrito');return}
+   if(!await sbResposta('atualizar a agenda',()=>SB.from('departments').update({tipo:tipoBanco,church_id:ig}).eq('id',id)))return;
+   // deixou de valer em todas: as escalas dela passam a ser desta igreja
+   if(!await sbEnvia('mover as escalas da agenda',()=>SB.from('events').update({distrital:false,church_id:ig}).eq('department_id',id)))return;
+  }
+ }
+ delete d.past;delete d.assoc;if(v==='past')d.past=true;else if(v==='assoc')d.assoc=true;
+ const comp=!!SHARED[id];
+ if(!comp&&dist)compartilharDep(id);        // virou agenda do distrito
+ else if(comp&&!dist)descompartilharDep(id);   // virou departamento da igreja
+ renderSide();renderCal();
+ toast('Tipo atualizado ✔'+(sbAtivo()&&!dist&&eraDist?' — agora vale só nesta igreja':''));
+ if(sbAtivo())sbRecarregar();    // o vínculo com a igreja mudou: recarrega do banco
+}
+function compartilharDep(id){
+ const base={...D(id)}; SHARED[id]=base;
+ CHURCHES.forEach(c=>{const a=DEPTSTORE[c];if(!a)return;const i=a.findIndex(x=>x.id===id);if(i>-1)a[i]=base});
+ if(DEPTS.findIndex(x=>x.id===id)<0)DEPTS.push(base);
+}
+function descompartilharDep(id){
+ const base=SHARED[id]; delete SHARED[id];
+ CHURCHES.forEach(c=>{
+   const a=DEPTSTORE[c]; if(a){const i=a.findIndex(x=>x.id===id); if(i>-1)a[i]={...base}}
+   const ev=EVSTORE[c]; if(ev)for(let k=0;k<ev.length;k++)if(ev[k].dep===id)ev[k]={...ev[k]};
+ });
+}
+async function depAdd(tipo){const past=(tipo===true||tipo==='past'),assoc=(tipo==='assoc');
+ if((past||assoc)&&S.role!=='admin_dist'){toast('Somente o Admin Distrital cria a Agenda Pastoral e a Agenda Associação');return}
+ if(!canAdmin())return;
+ const id='dep'+Date.now();
+ const used=DEPTS.map(d=>d.c.toLowerCase());
+ const c=PALETTE.find(x=>!used.includes(x.toLowerCase()))||'#2F8CFF';
+ const n=past?'Novo pastor':assoc?'Nova agenda de associação':'Nova agenda';
+ const obj={id,n,c,full:past?'Agenda Pastoral – Novo pastor':assoc?'Agenda Associação':n,sigla:'',...(past?{past:true}:{}),...(assoc?{assoc:true}:{})};
+ if(sbAtivo()){                          // Etapa 3: grava primeiro (o id é escolhido aqui, não pelo banco)
+   const uuid=(past||assoc)?null:sbIgId();
+   if(!uuid){toast('⚠️ Escolha uma igreja antes de criar a agenda');return}
+   const r=await sbResposta('criar a agenda',()=>SB.from('departments').insert({
+     id:id,key:id,church_id:uuid,name:obj.n,color:obj.c,sigla:'',tooltip:obj.full,
+     tipo:past?'pastoral':assoc?'associacao':'normal',ordem:++SBORDEM}));
+   if(!r)return;
+ }
+ if(past||assoc){                        // agenda do distrito: mesma em todas as igrejas
+   SHARED[id]=obj;
+   CHURCHES.forEach(ig=>{if(!DEPTSTORE[ig])DEPTSTORE[ig]=defDepts();if(!DEPTSTORE[ig].some(x=>x.id===id))DEPTSTORE[ig].push(obj)});
+ }
+ if(!DEPTS.some(x=>x.id===id))DEPTS.push(obj);
+ S.on.add(id);
+ renderDeps();renderSide();renderCal();
+ setTimeout(()=>{const rows=$('depRows').querySelectorAll('.dname');const last=rows[rows.length-1];if(last){last.focus();last.select()}},60);
+}
+async function depDel(id){
+ const d=D(id);if(!d)return;
+ if(!podeMexer(id))return;
+ const comp=!!SHARED[id];
+ const msg=comp?`Excluir a agenda "${d.n}"?\n\nEla é do distrito: aparece em TODAS as igrejas e será excluída de todas, junto com as escalas dela.`
+                :`Excluir a agenda "${d.n}"?\nAs escalas dela também serão removidas.`;
+ if(!confirm(msg))return;
+ if(sbAtivo()){                          // Etapa 3: escalas primeiro (o banco depende delas), depois a agenda
+  if(!await sbEnvia('excluir as escalas da agenda',()=>SB.from('events').delete().eq('department_id',id)))return;
+  if(!await sbEnvia('excluir a agenda',()=>SB.from('departments').delete().eq('id',id)))return;
+ }
+ const tiraDep=a=>{if(!a)return;const i=a.findIndex(x=>x.id===id);if(i>-1)a.splice(i,1)};
+ const tiraEv =a=>{if(!a)return;for(let k=a.length-1;k>=0;k--)if(a[k].dep===id)a.splice(k,1)};
+ if(comp){ delete SHARED[id];
+   const it=DEPTS_TPL.findIndex(x=>x.id===id); if(it>-1)DEPTS_TPL.splice(it,1);   // igreja nova não ressuscita
+   CHURCHES.forEach(c=>{tiraDep(DEPTSTORE[c]);tiraEv(EVSTORE[c])}); }
+ tiraDep(DEPTS); tiraEv(S.EV);
+ S.on.delete(id);
+ renderDeps();renderSide();renderCal();toast(comp?'Agenda distrital excluída de todas as igrejas':'Agenda excluída');
+}
+function tog(id){S.on.has(id)?S.on.delete(id):S.on.add(id);renderSide();renderCal()}
+
+/* ---------- arrastar e soltar ---------- */
+let DRAG=null;
+function dragStart(ev,id){
+ const e=S.EV.find(x=>x.id===id);
+ if(!e||!canEdit(e.dep)){ev.preventDefault();return}
+ DRAG=id;
+ ev.dataTransfer.setData('text/plain',String(id));
+ ev.dataTransfer.effectAllowed='move';
+ ev.target.classList.add('ghost');
+}
+function dragEnd(ev){ev.target.classList.remove('ghost')}
+function dragOver(ev){
+ if(DRAG==null)return;
+ if(!mesCerto(ev.currentTarget.dataset.d))return;   // célula de outro mês: não aceita o arrasto
+ ev.preventDefault();
+ ev.dataTransfer.dropEffect='move';
+ ev.currentTarget.classList.add('dropok');
+}
+function dragLeave(ev){ev.currentTarget.classList.remove('dropok')}
+function mesCerto(key){const p=String(key||'').split('-');return p.length===3&&+p[0]===S.y&&+p[1]===S.m+1}
+async function dropEv(ev){
+ ev.preventDefault();
+ ev.currentTarget.classList.remove('dropok');
+ if(DRAG==null)return;
+ const e=S.EV.find(x=>x.id===DRAG);
+ const target=ev.currentTarget.dataset.d;
+ DRAG=null;
+ if(!e||!target||e.d===target)return;
+ if(!mesCerto(target)){toast('Os dias de fora do mês não recebem escalas — use o mini-calendário para ir até o mês');return}
+ if(!canEdit(e.dep)){toast('Sem permissão para mover');return}
+ if(sbAtivo()&&!await sbEnvia('mover a escala',()=>SB.from('events').update({dia:target}).eq('id',Number(e.id))))return;
+ e.d=target;
+ renderCal();
+ const p=target.split('-');
+ toast('Escala movida para '+(+p[2])+'/'+p[1]+'/'+p[0]+' ✔');
+}
+function jump(d){                      // mini-calendário: leva a grade até o dia e acende um destaque
+ const key=fmt(S.y,S.m,d);
+ const cel=document.querySelector('#grid .cell[data-d="'+key+'"]');
+ if(!cel)return false;
+ if(cel.scrollIntoView)cel.scrollIntoView({block:'nearest',behavior:'smooth'});
+ cel.classList.add('flash');
+ if(jump._t)clearTimeout(jump._t);
+ jump._t=setTimeout(()=>cel.classList.remove('flash'),1600);
+ return true;
+}
+
+function renderCal(){
+ seed(S.y,S.m);
+ // meses vizinhos (para os dias das outras semanas também mostrarem as escalas)
+ const pm=new Date(S.y,S.m-1,1), nm=new Date(S.y,S.m+1,1);
+ seed(pm.getFullYear(),pm.getMonth()); seed(nm.getFullYear(),nm.getMonth());
+ $('ckHide').checked=S.hidden;
+ $('ckOff').checked=S.showOff;
+ document.body.classList.toggle('hidesmall',S.hidden);
+ // cabeçalho
+ const first=new Date(S.y,S.m,1);
+ const start=new Date(S.y,S.m,1-first.getDay());
+ let wh='';
+ for(let i=0;i<7;i++){
+   const cls=i===6?'sat':i===0?'sun':i===3?'qua':'';
+   const sm=(i===1||i===2||i===4||i===5)?' small':'';
+   wh+=`<div class="${cls}${sm}">${WD[i]}</div>`;
+ }
+ $('wdays').innerHTML=wh;
+ // grade
+ const byDate={};
+ S.EV.forEach(e=>{if(S.on.has(e.dep)&&inMod(e.dep))(byDate[e.d]=byDate[e.d]||[]).push(e)});
+ const today=new Date(),tk=fmt(today.getFullYear(),today.getMonth(),today.getDate());
+ let g='';
+ for(let i=0;i<42;i++){
+   const dt=new Date(start);dt.setDate(start.getDate()+i);
+   const key=fmt(dt.getFullYear(),dt.getMonth(),dt.getDate());
+   const off=dt.getMonth()!==S.m;
+   const wd=dt.getDay();
+   const sm=(wd===1||wd===2||wd===4||wd===5)?' small':'';
+   const cls=wd===6?' sat':wd===0?' sun':wd===3?' qua':'';   // com espaço -> "cell sun", nunca "cellsun"
+   const list=(off&&!S.showOff)?[]:(byDate[key]||[]).slice().sort((a,b)=>DEPTS.findIndex(d=>d.id===a.dep)-DEPTS.findIndex(d=>d.id===b.dep));
+   const multi=S.on.size>1;
+   let pills=list.map(e=>{
+     const d=D(e.dep);
+     if(!d)return '';
+     const pre=multi&&d.sigla?d.sigla+'_':'';
+     const ed=canEdit(e.dep);
+     return `<button class="pill" style="--c:${d.c};background:${d.c}" ${ed?'draggable="true"':''}`+
+       ` ondragstart="dragStart(event,${e.id})" ondragend="dragEnd(event)"`+
+       ` onclick="event.stopPropagation();verEv(${e.id})" title="${escOf((d.full?d.full+' · ':'')+e.t)}">${escOf(pre+e.t)}</button>`;
+   }).join('');
+   g+=`<div class="cell${cls}${sm}${off?' off':''}" data-d="${key}"`+
+      ` ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropEv(event)"`+
+      (off?'':` onclick="novo('${key}')"`)+`>`+     // > fecha a tag da célula (sem ele as pills saem do dia)
+        `<div class="dnum ${key===tk?'today':''}">${dt.getDate()}</div>${pills}`+
+        (off?'':`<div class="hintday">＋</div>`)+`</div>`;
+ }
+ $('grid').innerHTML=g;
+ renderTop();
+}
+
+/* ---------- eventos ---------- */
+function novoRapido(){
+ const t=new Date(),tk=fmt(t.getFullYear(),t.getMonth(),t.getDate());
+ novo(tk.slice(0,7)===fmt(S.y,S.m,1).slice(0,7)?tk:fmt(S.y,S.m,1));
+}
+function novo(date){
+ if(!mesCerto(date)){            // célula de outro mês ficou travada (sem clique nem "＋")
+  toast('Os dias de fora do mês não recebem escalas — use o mini-calendário para ir até o mês');return}
+ if(!canEditAny()){
+  const msg=S.role==='visitante'?'Modo membro – somente visualização'
+   :(S.role==='membro')?'Só visualização: esta agenda não está marcada como sua no cadastro (⚙ Gerenciar usuários → Agenda que lidera)'
+   :(S.role==='admin_local'&&deptList().every(d=>isSharedDep(d.id)))?'Somente o Admin Distrital edita a Agenda Pastoral e a Agenda Associação'
+   :'Você não tem agenda editável neste módulo';
+  toast(msg);return}
+ openEv(null,date);
+}
+function verEv(id){
+ const e=S.EV.find(x=>x.id===id);
+ if(!e)return;
+ if(canEdit(e.dep))openEv(id,e.d);else openEv(id,e.d,true);
+}
+function openEv(id,date,ro){
+ const e=id?S.EV.find(x=>x.id===id):null;
+ // "ver" mostra a agenda DA PRÓPRIA escala; "editar/nova" só as agendas que ele edita
+ const opts=(ro&&e)?[D(e.dep)].filter(Boolean):deptList().filter(d=>canEdit(d.id));
+ $('evDep').innerHTML=opts.map(d=>`<option value="${d.id}" ${e&&e.dep===d.id?'selected':''}>${escOf(d.n)}</option>`).join('');
+ $('evDep').disabled=!!ro;
+ const alvoDep=(e&&e.dep)?e.dep:depPadrao(opts);
+ if(alvoDep)$('evDep').value=alvoDep;      // no navegador já vem marcado; aqui garante o valor
+ const [y,m,d]=date.split('-');
+ $('evSub').textContent=`${+d} de ${MESES[+m-1]} de ${y}`+(ro?' · somente visualização':'');
+ $('evTxt').value=e?e.t:'';
+ $('evTxt').readOnly=!!ro;
+ $('evDate').value=date;
+ $('evDate').disabled=!!ro;
+ $('evDate').style.opacity=ro?.5:1;
+ $('evDel').style.display=(e&&!ro)?'':'none';
+ $('evOvl').classList.add('on');
+ $('evOvl').dataset.id=id||'';
+ $('evOvl').dataset.date=date;
+ atualizaEvDep();                         // título + aviso: em qual agenda a escala vai cair
+ if(!ro)setTimeout(()=>$('evTxt').focus(),80);
+}
+// diz EM QUAL AGENDA a escala vai cair (título + faixa de aviso) e avisa quem só visualiza
+function depPadrao(opts){                   // prefere a agenda que ele está VENDO no filtro da lateral
+ return (opts.find(d=>S.on.has(d.id))||opts[0]||{}).id||'';
+}
+function atualizaEvDep(){
+ const id=$('evOvl').dataset.id, ro=$('evDep').disabled;
+ const e=id?S.EV.find(x=>x.id==id):null;
+ const depSel=(e&&e.dep)?e.dep:$('evDep').value;
+ const d=D(depSel);
+ const base=ro?'Ver escala':(id?'Editar escala':'Nova escala');
+ $('evT').textContent=base+(d?' · '+d.n:'');
+ $('evTxt').placeholder=canAdmin()?'ex.: Louvor – Celebração 1':'ex.: '+placeholderFor(depSel);
+ const av=$('evHint'); av.style.display='none'; av.innerHTML='';
+ if(!d)return;
+ const lista=deptList(), edit=lista.filter(x=>canEdit(x.id));
+ if(ro){
+  av.innerHTML='Você só <b>visualiza</b> a agenda <b>'+escOf(d.n)+'</b> — esta escala não pode ser alterada pela sua parte.';
+  av.style.display='';
+ }else if(edit.length>0&&edit.length<lista.length){
+  av.innerHTML='A escala vai para a agenda <b>'+escOf(d.n)+'</b>'+
+    (edit.length===1?' — <b>a única que você edita</b>.':'')+
+    ' As escalas das outras agendas deste dia não mudam.';
+  av.style.display='';
+ }
+}
+function placeholderFor(dep){
+ const p={recepcao:'A. Maria – acolhida',diaconato:'J. Pereira – dízimos',limpeza:'Limpeza – 8h',louvor:'Ensaio 19h',
+          pregadores:'Pr. Carlos Mendes',escola:'Prof.ª Sara',sonoplastia:'Teste de som',anp:'Reunião ANP – 15h',
+          past1:'Visita – Pr. Erivando – Fam. Silva'};
+ return p[dep]||'texto da escala';
+}
+function closeEv(){$('evOvl').classList.remove('on')}
+async function salvarEv(){
+ const txt=$('evTxt').value.trim();
+ if(!txt){toast('Digite o texto da escala');return}
+ const id=$('evOvl').dataset.id;
+ const date=$('evDate').value||$('evOvl').dataset.date;
+ // 6a: guarda de permissão (a tela já só oferece agendas editáveis, mas a função não pode aceitar o resto)
+ const novoDep=$('evDep').value, alvo=id?S.EV.find(x=>x.id==id):null;
+ if(novoDep&&!canEdit(novoDep)){toast('Sem permissão para editar esta agenda');return}
+ if(alvo&&alvo.dep&&!canEdit(alvo.dep)){toast('Sem permissão para editar esta escala');return}
+ // ---- Etapa 3: grava no banco ANTES de mexer na tela (o id vem do banco) ----
+ let novoId=null;
+ if(sbAtivo()){
+  const ig=sbIgId();
+  if(!ig){toast('⚠️ Escolha uma igreja antes de salvar a escala');return}
+  const dist=isSharedDep(novoDep);
+  if(id){
+   const r=await sbResposta('salvar a escala',()=>SB.from('events')
+     .update({department_id:novoDep,dia:date,texto:txt,distrital:dist,church_id:ig}).eq('id',Number(id)));
+   if(!r)return;
+  }else{
+   const r=await sbResposta('salvar a escala',()=>SB.from('events')
+     .insert({church_id:ig,department_id:novoDep,dia:date,texto:txt,distrital:dist}).select('id').single());
+   if(!r||!r.data)return;
+   novoId=Number(r.data.id);
+  }
+ }
+ if(id){const e=alvo;
+   const era=isSharedEv(e), agora=isSharedDep(novoDep);
+   e.t=txt;e.dep=novoDep;e.d=date;
+   if(agora&&!era)pushCompartilhado(e);              // passou para agenda do distrito
+   else if(!agora&&era)removeCompartilhado(e,S.church);  // passou a ser desta igreja
+ }
+ else{const ev={id:(novoId!=null?novoId:S.nid++),d:date,dep:novoDep,t:txt};
+   if(isSharedDep(ev.dep))pushCompartilhado(ev); else S.EV.push(ev);}
+ // se salvou noutro mês, navega até ele
+ const [ny,nm]=date.split('-').map(Number);
+ if(ny!==S.y||nm-1!==S.m){S.y=ny;S.m=nm-1}
+ // agenda desmarcada no filtro da lateral: religa (senão a escala "some") e conta
+ let nota='';
+ if(novoDep&&!S.on.has(novoDep)){
+  S.on.add(novoDep);
+  nota=' — a agenda '+(D(novoDep)?D(novoDep).n:novoDep)+' estava oculta no filtro, liguei para você ver';
+ }
+ closeEv();renderSide();renderCal();toast('Escala salva ✔'+nota);
+}
+async function excluirEv(){
+ const id=$('evOvl').dataset.id;
+ if(!id)return;
+ const alvo=S.EV.find(x=>x.id==id);
+ if(!alvo)return;
+ if(alvo.dep&&!canEdit(alvo.dep)){toast('Sem permissão para excluir esta escala');return}   // 6a
+ const dist=isSharedEv(alvo);
+ const msg=dist?'Excluir esta escala?\n\nEla é de uma agenda do distrito: sai de TODAS as igrejas.':'Excluir esta escala?';
+ if(!confirm(msg))return;
+ if(sbAtivo()&&!await sbEnvia('excluir a escala',()=>SB.from('events').delete().eq('id',Number(id))))return;
+ const ix=S.EV.findIndex(x=>x.id==id); if(ix>-1)S.EV.splice(ix,1);   // apaga no lugar: mantém o link com a lista da igreja
+ if(dist)removeCompartilhado(alvo);
+ closeEv();renderCal();toast(dist?'Escala excluída de todas as igrejas':'Escala excluída');
+}
+function imprimir(){renderTop();if(S.mod==='oficiais')renderOf();if(S.mod==='programacao')renderProg();window.print()}
+
+/* ---------- impressão: escolher as agendas ---------- */
+function abrirImpressao(){
+ if(S.mod==='programacao')return prnProg();
+ if(S.mod!=='escalas'&&S.mod!=='pastoral'&&S.mod!=='assoc'){imprimir();return}   // lista de oficiais: imprime direto
+ const lista=deptList(), n=lista.filter(d=>S.on.has(d.id)).length;
+ $('prnInfo').innerHTML='O que vai para o papel · <b>'+(MESES[S.m]+' de '+S.y)+'</b> · ⛪ '+escOf(S.church||'—');
+ let h='';
+ h+='<button class="btn azul prnOpt" '+(n?'onclick="imprimirAgora(\'sel\')"':'disabled')+'>'+
+    '<span>🖨 Somente as agendas marcadas</span><small>'+
+    (n ? n+' de '+lista.length+' agendas — igual ao que está na tela agora'
+       : 'nenhuma agenda marcada — marque na lateral ou escolha a opção ao lado')+
+    '</small></button>';
+ h+='<button class="btn roxo prnOpt" onclick="imprimirAgora(\'todas\')">'+
+    '<span>🖨 Todas as agendas</span><small>'+
+    lista.length+' agendas do módulo — ignora o que está marcado na lateral</small></button>';
+ $('prnOpts').innerHTML=h;
+ $('prnOvl').classList.add('on');
+}
+function closePrn(){$('prnOvl').classList.remove('on')}
+function imprimirAgora(modo){
+ const antes=[...S.on], lista=deptList();
+ if(modo==='todas')S.on=new Set(lista.map(d=>d.id));
+ const marc=S.on.size;
+ closePrn();
+ renderTop();
+ renderCal();
+ // o escopo escolhido entra só no papel (renderCal chama renderTop e o refaz)
+ $('printSub').textContent+=' · '+(modo==='todas'?'todas as agendas':'só as agendas marcadas')+
+   ' ('+marc+'/'+lista.length+')';
+ window.print();
+ S.on=new Set(antes);          // devolve a seleção que o usuário tinha
+ renderTop(); renderCal();
+}
+
+/* ---------- Supabase: login + leitura (Etapa 2) ---------- */
+function sbEmail(l){return l.trim().toLowerCase()+SB_EMAIL_DOM}
+function sbErroMsg(m){const e=$('lgErr');if(!e)return;e.textContent=m||'';e.style.display=m?'':'none'}
+function sbMsgErro(err){
+ const m=String(err&&err.message||'');
+ if(/invalid login credentials/i.test(m))return 'Usuário ou senha incorretos.';
+ if(/email not confirmed/i.test(m))return 'E-mail não confirmado – desmarque "Confirm email" em Authentication → Sign In → Email.';
+ if(/rate limit/i.test(m))return 'Muitas tentativas – aguarde um minuto e tente de novo.';
+ if(/fetch|network|Failed to fetch/i.test(m))return 'Sem conexão com o servidor – verifique a internet.';
+ return m||'Não consegui entrar.';
+}
+async function sbEntrar(){
+ const u=($('lgUser')?$('lgUser').value:'').trim(), p=$('lgPass')?$('lgPass').value:'';
+ if(!u||!p){sbErroMsg('Digite o usuário e a senha');return}
+ if(!SB){sbErroMsg('A biblioteca do Supabase não carregou (sem internet?) – recarregue a página.');return}
+ sbErroMsg('Entrando…');
+ try{
+  const {data,error}=await SB.auth.signInWithPassword({email:sbEmail(u),password:p});
+  if(error){sbErroMsg(sbMsgErro(error));return}
+  await sbEntrou(data.session);
+ }catch(e){sbErroMsg('Sem conexão com o servidor – verifique a internet.')}
+}
+function sbDemo(){
+ SBDEMO=true;                                   // daqui em diante o app volta a ser o protótipo
+ sbErroMsg('');
+ if($('loginOvl'))$('loginOvl').classList.remove('on');
+ if($('chOvl'))$('chOvl').classList.add('on');
+ renderChurches(); render();
+ toast('Modo demonstração (sem Supabase) – dados locais de teste');
+}
+async function sbSair(){
+ try{ if(SB)await SB.auth.signOut() }catch(e){}
+ location.reload();
+}
+
+/* lê TUDO do banco e troca os stores do protótipo pelos dados reais */
+async function sbCarregarTudo(){
+ const [ri,rd,ru,re,ro,rp]=await Promise.all([
+  SB.from('churches').select('id,name,city,ordem').eq('ativa',true).order('ordem'),
+  SB.from('departments').select('id,church_id,name,color,sigla,tooltip,tipo,ordem').eq('ativa',true).order('ordem'),
+  SB.from('users').select('id,auth_id,login,nome,zap,nivel,church_id,dep,ativo'),
+  SB.from('events').select('id,church_id,department_id,dia,texto,distrital'),
+  SB.from('officers').select('church_id,linhas,pdf_nome,pdf_dados'),
+  SB.from('programs').select('church_id,dados')
+ ]);
+ const ruim=[ri,rd,ru,re,ro,rp].find(x=>x.error);
+ if(ruim)return ruim.error.message;
+
+ // --- igrejas ---
+ const nome={}, idDe={};
+ (ri.data||[]).forEach(i=>{nome[i.id]=i.name;idDe[i.name]=i.id});
+ Object.keys(SBID).forEach(k=>delete SBID[k]);   // mapa nome -> uuid (Etapa 3: gravar na igreja certa)
+ (ri.data||[]).forEach(i=>{SBID[i.name]=i.id});
+ CHURCHES=(ri.data||[]).map(i=>i.name);
+ CHCITY={}; (ri.data||[]).forEach(i=>{CHCITY[i.name]=i.city||'Distrito · ANP'});
+
+ // --- agendas (distritais = church_id nulo -> SHARED, valem em todas) ---
+ const comp=[], propias={};
+ SBORDEM=0;
+ (rd.data||[]).forEach(r=>{
+  if(r.ordem>SBORDEM)SBORDEM=r.ordem;         // próxima agenda nova começa depois da última
+  const o={id:r.id,n:r.name,c:r.color,full:r.tooltip||r.name,sigla:r.sigla||''};
+  if(r.tipo==='pastoral')o.past=true;
+  else if(r.tipo==='associacao')o.assoc=true;
+  if(!r.church_id){comp.push(o);return}
+  const ig=nome[r.church_id]; if(!ig)return;
+  (propias[ig]=propias[ig]||[]).push(o);
+ });
+ Object.keys(SHARED).forEach(k=>delete SHARED[k]);
+ comp.forEach(o=>SHARED[o.id]=o);
+ Object.keys(DEPTSTORE).forEach(k=>delete DEPTSTORE[k]);
+ CHURCHES.forEach(c=>{DEPTSTORE[c]=(propias[c]||[]).concat(comp)});
+
+ // --- usuários (perfil/vínculo vêm do banco) ---
+ USUARIOS=(ru.data||[]).filter(u=>u.ativo!==false).map(u=>({
+  uid:u.id, auth:u.auth_id,
+  nome:u.nome, user:u.login, zap:u.zap||'', senha:'', nivel:u.nivel,
+  igreja:u.church_id?(nome[u.church_id]||'*'):'*',
+  dep:Array.isArray(u.dep)?u.dep:[]
+ }));
+
+ // --- escalas ---
+ Object.keys(EVSTORE).forEach(k=>delete EVSTORE[k]);
+ CHURCHES.forEach(c=>EVSTORE[c]=[]);
+ let maxId=0;
+ (re.data||[]).forEach(e=>{
+  const id=Number(e.id); if(id>maxId)maxId=id;
+  const ev={id:id,d:e.dia,dep:e.department_id,t:e.texto};
+  if(e.distrital)CHURCHES.forEach(c=>EVSTORE[c].push(ev));   // mesma escala em todas
+  else{const ig=nome[e.church_id]; if(ig&&EVSTORE[ig])EVSTORE[ig].push(ev)}
+ });
+ S.nid=maxId+1;
+
+ // --- lista de oficiais + PDF ---
+ OFSTORE={}; OFPDF={};
+ (ro.data||[]).forEach(o=>{
+  const ig=nome[o.church_id]; if(!ig)return;
+  OFSTORE[ig]=Array.isArray(o.linhas)?o.linhas:[];
+  if(o.pdf_dados)OFPDF[ig]={nome:o.pdf_nome||'oficiais.pdf',dados:o.pdf_dados};
+ });
+ CHURCHES.forEach(c=>{if(!OFSTORE[c])OFSTORE[c]=[]});
+
+ // --- programação ---
+ PGSTORE={__v:PGVER};
+ (rp.data||[]).forEach(p=>{
+  const ig=nome[p.church_id]; if(!ig)return;
+  PGSTORE[ig]=Array.isArray(p.dados)?p.dados:[];
+ });
+ return null;
+}
+
+async function sbEntrou(sess){
+ const uid=sess&&sess.user&&sess.user.id;
+ if(!uid){sbErroMsg('Sessão inválida – entre de novo.');return}
+ let perfil=null;
+ try{
+  const {data,error}=await SB.from('users')
+    .select('login,nome,nivel,church_id,dep,igreja:churches(name)')
+    .eq('auth_id',uid).eq('ativo',true).maybeSingle();
+  if(error)throw error;
+  perfil=data;
+ }catch(e){sbErroMsg('Não consegui ler seu cadastro: '+((e&&e.message)||e));return}
+ if(!perfil){
+  sbErroMsg('Este login ainda não tem cadastro no sistema – peça ao Admin Distrital para cadastrar.');
+  try{await SB.auth.signOut()}catch(e){}
+  return;
+ }
+ SBPERFIL=perfil;
+ S.role=ROLES[perfil.nivel]?perfil.nivel:'visitante';
+ if(S.role==='admin_local'&&perfil.igreja&&perfil.igreja.name)ROLES.admin_local.myChurch=perfil.igreja.name;
+ if(S.role==='membro')S.lider=perfil.login;
+ let falha=null;
+ try{falha=await sbCarregarTudo()}catch(e){falha=(e&&e.message)||String(e)}
+ if(falha){sbErroMsg('Não consegui carregar os dados: '+falha);return}
+
+ sbErroMsg('');
+ if($('loginOvl'))$('loginOvl').classList.remove('on');
+ if($('roleSel'))$('roleSel').style.display='none';          // o papel vem do cadastro
+ const q=$('sbQuem'); if(q){q.style.display='';q.textContent=(perfil.nome||perfil.login)+' · '+ROLES[S.role].badge}
+ const b=$('btnSair'); if(b)b.style.display='';
+ renderChurches();
+ const ig=perfil.igreja&&perfil.igreja.name;
+ if(ig&&CHURCHES.includes(ig))pickChurch(ig);                // entra direto na igreja do perfil
+ else{ if($('chOvl'))$('chOvl').classList.add('on'); render() }
+}
+
+function sbBoot(){
+ if(!SB)return;                                  // sem CDN/offline -> protótipo, como sempre
+ if($('roleSel'))$('roleSel').style.display='none';
+ if($('chOvl'))$('chOvl').classList.remove('on');   // escolha de igreja só depois do login
+ if($('loginOvl'))$('loginOvl').classList.add('on');
+ try{
+  SB.auth.getSession().then(r=>{
+   const s=r&&r.data&&r.data.session;
+   if(s)sbEntrou(s);
+  }).catch(()=>{});
+ }catch(e){}
+}
+
+
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'){closeEv();closeChurch();closeOf();closePaste();closePg();closePrn();$('depOvl').classList.remove('on');closeUsers()}
+ const algumOvl=['loginOvl','evOvl','chOvl','ofOvl','ofPasteOvl','pgOvl','prnOvl','depOvl','userOvl'].some(id=>$(id)&&$(id).classList.contains('on'));
+ if(algumOvl)return;
+ if(S.mod==='oficiais'||S.mod==='programacao')return;      // setas não navegam o mês nas listas
+ if(e.key==='ArrowLeft')nav(-1);
+ if(e.key==='ArrowRight')nav(1);
+});
+
+/* ---------- start ---------- */
+initTheme();
+loadOf();
+loadPg();
+renderChurches();
+$('roleSel').value=S.role;
+render();
+sbBoot();                                  // Etapa 2: se o Supabase estiver ligado, abre o login
+</script>
+</body>
+</html>

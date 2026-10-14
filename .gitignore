@@ -1,0 +1,16 @@
+# Não vai para o GitHub / hospedagem
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+
+# Fontes e documentos internos do projeto (o site publicado é só o index.html)
+*.pdf
+*.docx
+*_light.png
+*_dark.png
+*_impressao.png
+gerenciar_*.png
+assoc_escalas.png
+oficiais_colar.txt
+.vscode/
