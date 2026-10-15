@@ -51,7 +51,9 @@ button{font-family:var(--f-body)}
 
 /* ===== topbar ===== */
 .topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 24px;
- border-bottom:1px solid var(--border);background:var(--topbar);position:sticky;top:0;z-index:30}
+ border-bottom:1px solid var(--border);background:var(--topbar);position:sticky;top:0;z-index:30;
+ transition:transform .25s ease}                       /* some/aparece ao rolar (celular) */
+body.topbarOculta .topbar{transform:translateY(-101%)}
 .brand{font:800 21px/1.12 var(--f-display);white-space:nowrap;letter-spacing:.02em;
  text-shadow:0 0 22px rgba(47,140,255,.35)}
 .brand small{display:block;font:700 11.5px var(--f-body);color:var(--orange);letter-spacing:.12em;text-transform:uppercase}
@@ -1473,6 +1475,19 @@ document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchMod(b.dataset.m
 function nav(k){let m=S.m+k,y=S.y;if(m<0){m=11;y--}if(m>11){m=0;y++}S.m=m;S.y=y;render()}
 function goToday(){const d=new Date();S.y=d.getFullYear();S.m=d.getMonth();render()}
 function setYear(y){S.y=y;render()}
+// celular: o cabeçalho some ao rolar para baixo e volta ao subir (só se a página rolar de verdade)
+(function(){
+ if(typeof window==='undefined'||!window.addEventListener||!window.matchMedia)return;
+ let ultimo=window.scrollY||0;
+ const mq=window.matchMedia('(max-width:980px)');
+ window.addEventListener('scroll',function(){
+  if(!mq.matches){document.body.classList.remove('topbarOculta');return}
+  const y=window.scrollY||0;
+  if(y>140&&y>ultimo+8)document.body.classList.add('topbarOculta');          // descendo: some
+  else if(y<ultimo-8||y<=140)document.body.classList.remove('topbarOculta'); // subindo (ou perto do topo): volta
+  ultimo=y;
+ },{passive:true});
+})();
 function toggleHide(v){S.hidden=v;document.body.classList.toggle('hidesmall',v)}
 function toggleOffDays(v){S.showOff=!!v;renderCal()}   // escalas dos dias que são de outro mês
 function setAll(v){S.on=new Set(v?deptList().map(d=>d.id):[]);renderSide();renderCal()}
