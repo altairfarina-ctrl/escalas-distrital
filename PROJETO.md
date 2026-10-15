@@ -1,6 +1,15 @@
 # AGENDA DISTRITAL - Distrito Ivailândia - ANP
 
-> **Documento de acompanhamento do projeto** – atualizado em **07/10/2026**
+> **Documento de acompanhamento do projeto** – atualizado em **15/10/2026**
+
+---
+
+## 0. Regras do projeto (o agente DEVE seguir)
+
+1. **🛰️ Publicar no Vercel: SEMPRE perguntar primeiro (regra do usuário, 15/10).** Antes de qualquer `git push` que leve à publicação automática em https://escalas-distrital.vercel.app, **parar e perguntar ao usuário** se ele quer publicar agora. Vale para commits locais: pode commitar à vontade, mas **o `git push` (que dispara o deploy) só depois do "sim"**. Se o push for só documentação (`PROJETO.md`) e nenhum `index.html`, ainda assim perguntar — o usuário decide.
+2. **🗣️ Idioma:** responder sempre em **pt-BR**.
+3. **🧹 Dados reais intocáveis:** o Supabase do projeto fica **só com dados reais**. Nada de semente/demonstração (a opção de demonstração foi **removida do sistema em 14/10** — ver §6/§7).
+4. **🧪 Testes antes de considerar pronto:** `node --check` nos 2 blocos `<script>` + suíte completa (`node "$env:TEMP\opencode\run_all.js"` — 23 suítes / 730 asserções) **zeradas de falhas**.
 
 ---
 
@@ -179,7 +188,7 @@ Site distrital onde administradores e líderes de departamento publicam **escala
 >
 > **Feito em 14/10:** projeto **reativado** no painel (estava EM PAUSA — o plano gratuito pausa projetos sem uso; por isso o login aparecia como "sem conexão"); **Edge Function `criar-usuario` publicada pelo painel** e testada ao vivo: cadastro do `teste1` passou **sem o "limite excedido"** do signUp público, e a exclusão apagou **também a conta Auth** (o apelido ficou livre). Lista de Oficiais: anexo PDF sumiu numa recarga (o push anterior tinha falhado enquanto o banco ainda acordava) — **reanexado e confirmado no banco**; os 73 oficiais entraram pelo `📥 Colar do Excel` a partir do `oficiais_colar.txt`.
 >
-> **📋 PRÓXIMO PASSO — ~~botão "carregar dados de demonstração"~~ → entregue e depois ❌ REMOVIDO em 14/10** a pedido do usuário (a demo sujou as escalas reais; banco limpo — ver item do §6). Ainda na fila: higiene da senha do admin e decisão de hospedagem.
+> **📋 PRÓXIMO PASSO — ~~botão "carregar dados de demonstração"~~ → entregue e depois ❌ REMOVIDO em 14/10** a pedido do usuário (a demo sujou as escalas reais; banco limpo — ver item do §6). **Próximo tema combinado (item 9): 📱 abas duplicadas no celular na horizontal + "vai pro login"**. Ainda na fila: higiene da senha do admin e decisão de hospedagem.
 
 1. **Aprovação do usuário** das entregas de 06/10: rodapé com o link da ANP, **Programação** com os dados reais da planilha, **módulo Agenda Associação**, correção das exclusões que "voltavam", **Agenda Pastoral e Associação virarem 1 agenda do distrito** (edição única vale para as 6 igrejas), **só o Admin Distrital edita essas duas**, rótulos **"Departamento" → "Agenda"** e cargos da Secretaria **traduzidos**. Os testes estão verdes (**608**) — falta o `Ctrl+F5` e o aval final.
 2. **Revisão de código 07/10 — ✅ TODOS os 6 achados CORRIGIDOS no mesmo dia** (rename/excluir igreja, colagem 3 colunas, escape de HTML, líder preso à igreja, código morto e os 3 itens menores; ver §6). Sobra só a decisão de hospedagem/domínio.
@@ -218,6 +227,11 @@ Site distrital onde administradores e líderes de departamento publicam **escala
    - **Etapa 2 – Supabase (definitiva):** **Supabase Auth** (senha criptografada/bcrypt no servidor, nunca texto puro), **"Esqueci minha senha"** por e-mail, **admin redefine a senha de um usuário** (Distrital em qualquer igreja, Local só na sua) com senha temporária + **forçar troca no 1º acesso**, e tentativas limitadas.
    - No cadastro de usuário, o campo passaria a ser **"Senha provisória" opcional** (se vazio, o sistema gera) — deixa de ser texto simples visível.
    - *Decisão do usuário:* não implementar agora; retomar quando formos para o login real.
+9. **📱 Abas duplicadas no celular (horizontal) + "vai pro login" — ANOTADO EM 15/10, ver no PRÓXIMO PASSO (adiado pelo usuário):**
+   - **Sintoma (print de 15/10):** celular na horizontal → o Safari mostra a **barra de abas** e havia **várias abas, todas intituladas "AGENDA…"**; **clicar numa delas leva à tela de login**.
+   - **Investigação de 15/10 (só leitura):** o app **não** cria aba sozinha — só há `window.open(url,'_blank')` em `verPdf()` (anexo PDF, linha ~1696) e no link do rodapé "🌐 Site da ANP" (`target="_blank"`, linha ~559). As abas repetidas são do **próprio navegador** (toques/aberturas do usuário). *A confirmar em aparelho real.*
+   - **Hipótese do login:** `sbBoot()` só restaura sessão se o Supabase responder — aba antiga/congelada, sessão expirada ou **projeto em pausa** (plano gratuito, ver aviso no topo do §7) caem na tela de login crua.
+   - **Checklist do próximo passo:** (a) confirmar o fenômeno em aparelho real; (b) se clicar na aba levar ao login **mesmo com sessão válida**, endurecer `sbBoot()` (retry + aviso claro "sessão expirada – entre de novo" em vez do login cru); (c) dar **título distinto por aba/igreja** (`document.title` com o nome da igreja aberta) para as abas não serem todas iguais; (d) decidir se `verPdf()` abre em aba nova ou embute no app; (e) no celular em horizontal, ver se a AppBar do navegador pode ser escondida (visualização em tela cheia / screen orientation).
 
 ---
 
