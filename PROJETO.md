@@ -166,11 +166,10 @@ Site distrital onde administradores e líderes de departamento publicam **escala
    - **Publicar (1 vez):** `supabase functions deploy criar-usuario --project-ref mjnwhohloafxfdsbltbl` (ou pelo painel: Edge Functions → criar `criar-usuario` → colar o arquivo → Deploy). A `SUPABASE_SERVICE_ROLE_KEY` é injetada automaticamente.
    - **Testes:** `test_edgefn_body.js` (18 asserções) — fallback sem função, criação via função (sessão do admin intacta, sem signUp), erro da função não cadastra, exclusão apaga a conta Auth, exclusão com função falhando, e o fallback antigo continuando íntegro. **Suíte total: 608 protótipo + 66 Etapa 3 + 18 Edge Function = 692, todas verdes**
 
-- [x] **Botão "🧪 Dados de demonstração" (14/10):** *decisão do usuário de 07/10 (§5) + escolhas de 14/10:* dados **no Supabase, marcados** (não só na tela) e o botão carrega **Escalas + Programação**. Dois botões novos na caixa **Administração** da lateral, **visíveis só para administrador em modo Supabase** (no protótipo a semente já existe; Membro não vê):
-   - **🧪 Dados de demonstração** (`demoCarregar`): gera **1 mês de escalas** usando o mesmo molde `T` do protótipo (domingo cheio, quarta com ensaio, sábado com ANP/celebração…) mapeando as chaves do molde para os **ids reais das agendas da igreja aberta** (`demoDepId`) e grava tudo de uma vez (`insert` em lote) com o prefixo **`🧪 DEMO · `** no texto; agendas do distrito (Pastoral/Associação) nascem `distrital=true`. Depois copia as **3 programações do `PG_SEED`** com o mesmo marcador no título (upsert na linha da igreja). Confirmação antes de gravar; recarrega e repinta ao final.
-   - **🧹 Remover demonstração** (`demoRemover`): apaga **só** o que tem o marcador `🧪 DEMO · ` (escalas e programações) — **escalas reais ao lado não são tocadas** (testado: escala real sobrevive); remoção repetida é pacífica ("Nenhum dado de demonstração nesta igreja").
-   - *Permissões:* `canAdmin()` (Admin Distrital em qualquer igreja / Admin Local só na sua — o `sbIgId()` garante a igreja certa); sem permissão nada é gravado.
-   - **Testes:** `test_demo_body.js` (19 asserções) — botões visíveis só em nuvem+admin, gravação com marcador/distrital/igreja certa, programação em cima, escala real preservada na remoção, remoção 2× e trava de permissão. **Suíte total: 608 + 66 + 18 + 19 = 711, todas verdes**
+- [x] **Botão "🧪 Dados de demonstração" — CRIADO EM 14/10 E REMOVIDO EM 14/10 (a pedido do usuário):** existiu por poucas horas: gravava escalas/programações no Supabase marcadas com `🧪 DEMO · `. O usuário reportou **lançamentos de demonstração aparecendo nas escalas das igrejas** mesmo entrando "sem demonstração" — e pediu para **tirar a opção de demonstração do sistema**. Feito:
+   - **Removidos do `index.html`:** botão *"Continuar sem conta (demonstração)"* da tela de login, botões *🧪 Dados de demonstração* / *🧹 Remover demonstração* da Administração, e as funções `sbDemo()`, `demoCarregar()`, `demoRemover()`, `demoDepId()`, `DEMO_PFX` + a variável `SBDEMO`. `sbAtivo()` virou simplesmente `!!SB` (sem ramo de demo).
+   - **Banco real limpo (14/10):** inspecionado via API (`events` + `programs`) — **86 escalas 🧪 + 3 programações 🧪 apagadas** (todas da IASD Jardim Kakimori; as escalas distritais apareciam em todas as igrejas); **sobraram só as 16 escalas reais** do usuário (Evangelista, Antonio, Gabriel, Farina…) e as **3 programações reais**. Nenhuma linha restante com "🧪" ou "DEMO".
+   - **Testes passaram a ser de regressão:** `test_demo_body.js` (26 asserções — garante que login, Administração e código não têm mais NENHUMA referência à demo) + `test_vazamento_body.js` (12 asserções — semente do protótipo não grava, `salvarEv` grava exatamente 1 linha sem marcador, excluir mexe só no alvo, e não existe mais caminho para "modo demonstração"). **Suíte total: 730, todas verdes**
 
 ---
 
@@ -180,7 +179,7 @@ Site distrital onde administradores e líderes de departamento publicam **escala
 >
 > **Feito em 14/10:** projeto **reativado** no painel (estava EM PAUSA — o plano gratuito pausa projetos sem uso; por isso o login aparecia como "sem conexão"); **Edge Function `criar-usuario` publicada pelo painel** e testada ao vivo: cadastro do `teste1` passou **sem o "limite excedido"** do signUp público, e a exclusão apagou **também a conta Auth** (o apelido ficou livre). Lista de Oficiais: anexo PDF sumiu numa recarga (o push anterior tinha falhado enquanto o banco ainda acordava) — **reanexado e confirmado no banco**; os 73 oficiais entraram pelo `📥 Colar do Excel` a partir do `oficiais_colar.txt`.
 >
-> **📋 PRÓXIMO PASSO — ~~botão "carregar dados de demonstração"~~ → ✅ ENTREGUE EM 14/10** (ver item abaixo no §6). Ainda na fila: higiene da senha do admin e decisão de hospedagem.
+> **📋 PRÓXIMO PASSO — ~~botão "carregar dados de demonstração"~~ → entregue e depois ❌ REMOVIDO em 14/10** a pedido do usuário (a demo sujou as escalas reais; banco limpo — ver item do §6). Ainda na fila: higiene da senha do admin e decisão de hospedagem.
 
 1. **Aprovação do usuário** das entregas de 06/10: rodapé com o link da ANP, **Programação** com os dados reais da planilha, **módulo Agenda Associação**, correção das exclusões que "voltavam", **Agenda Pastoral e Associação virarem 1 agenda do distrito** (edição única vale para as 6 igrejas), **só o Admin Distrital edita essas duas**, rótulos **"Departamento" → "Agenda"** e cargos da Secretaria **traduzidos**. Os testes estão verdes (**608**) — falta o `Ctrl+F5` e o aval final.
 2. **Revisão de código 07/10 — ✅ TODOS os 6 achados CORRIGIDOS no mesmo dia** (rename/excluir igreja, colagem 3 colunas, escape de HTML, líder preso à igreja, código morto e os 3 itens menores; ver §6). Sobra só a decisão de hospedagem/domínio.
@@ -230,7 +229,8 @@ $html = Get-Content -Raw "C:\Users\Altair.farina\Documents\Projeto_ESCALAS\index
 $m = [regex]::Matches($html,'(?s)<script>(.*?)</script>')
 foreach($i in 0..($m.Count-1)){ Set-Content "$env:TEMP\chk$i.js" $m[$i].Groups[1].Value -Encoding UTF8; node --check "$env:TEMP\chk$i.js" }
 
-# Testes (em C:\Users\Altair.farina\AppData\Local\Temp\opencode) — total: 600 + 8 de tema = 608
+# Testes (em C:\Users\Altair.farina\AppData\Local\Temp\opencode) — total: 730 asserções / 23 suítes
+# (600 + 8 de tema do protótipo + 66 Etapa 3 + 18 Edge Function + 26 demo-removida + 12 vazamento)
 node "$env:TEMP\opencode\test_church.js" test_church_body.js   # igrejas (34)
 node "$env:TEMP\opencode\test_church.js" test_user_body.js     # usuários (45)
 node "$env:TEMP\opencode\test_church.js" test_membro_body.js   # nível membro (19)
@@ -257,8 +257,14 @@ node "$env:TEMP\opencode\cloud_harness.js" cloud_etapa3_body.js
 # Edge Function criar-usuario (fallback + cria/exclui contas) — 18 asserções
 node "$env:TEMP\opencode\cloud_harness.js" test_edgefn_body.js
 
-# Dados de demonstração no modo Supabase (marcados com 🧪 DEMO) — 19 asserções
+# Opção de demonstração REMOVIDA — testes de regressão (26 asserções)
 node "$env:TEMP\opencode\cloud_harness.js" test_demo_body.js
+
+# Vazamento: nada local/protótipo grava no banco (12 asserções)
+node "$env:TEMP\opencode\cloud_harness.js" test_vazamento_body.js
+
+# Suíte de 1 só vez (23 suítes | 730 asserções)
+node "$env:TEMP\opencode\run_all.js"
 
 # Publicar a Edge Function (1x, precisa do Supabase CLI instalado e logado)
 supabase functions deploy criar-usuario --project-ref mjnwhohloafxfdsbltbl

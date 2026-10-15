@@ -369,7 +369,6 @@ footer a:hover,footer a:focus{text-decoration:underline}
     <p class="sub" id="lgErr" style="display:none;color:#FF5C5C;margin:-4px 0 12px"></p>
     <div class="evbtns" style="flex-wrap:wrap">
       <button class="btn azul" onclick="sbEntrar()">🔓 Entrar</button>
-      <button class="btn" onclick="sbDemo()">Continuar sem conta (demonstração)</button>
     </div>
     <p class="sub" style="margin-top:16px;font-size:13px">
       Esqueceu a senha? Peça ao administrador para redefinir no painel do Supabase
@@ -460,10 +459,6 @@ footer a:hover,footer a:focus{text-decoration:underline}
         onclick="openUsers()">👥 Gerenciar usuários</button>
       <button class="btn roxo" id="btnNewCh" style="width:100%;justify-content:center"
         onclick="addChurchUI()">⛪ Gerenciar igrejas</button>
-      <button class="btn azul" id="btnDemo" style="width:100%;justify-content:center;margin-top:8px;display:none"
-        onclick="demoCarregar()">🧪 Dados de demonstração</button>
-      <button class="btn del" id="btnDemoDel" style="width:100%;justify-content:center;margin-top:6px;display:none"
-        onclick="demoRemover()">🧹 Remover demonstração</button>
     </div>
 
     <div class="me" id="meBox"></div>
@@ -748,11 +743,10 @@ const SB_EMAIL_DOM='@escalas.distrital.app';
 /* Sem window.supabase (CDN caiu / testes / offline) => SB=null => modo protótipo. */
 const SB=(typeof window!=='undefined'&&window.supabase&&window.supabase.createClient)
   ?window.supabase.createClient(SB_URL,SB_KEY):null;
-let SBDEMO=false;          // escolheu "Continuar sem conta (demonstração)"
 let SBPERFIL=null;         // linha de public.users do usuário logado
 const SBID={};             // nome da igreja -> uuid no banco (Etapa 3)
 let SBORDEM=0;             // maior nº de ordem já usado nas agendas (para a próxima)
-function sbAtivo(){return !!(SB&&!SBDEMO)}   // ligado ao Supabase (nuvem)
+function sbAtivo(){return !!SB}                    // ligado ao Supabase (nuvem)
 
 /* ===== Etapa 3: gravação no Supabase ===== */
 function sbIgId(){return SBID[S.church]||null}          // uuid da igreja aberta
@@ -949,57 +943,6 @@ function initTheme(){
  }
 }
 
-/* ---------- dados de demonstração ---------- */
-const DEMO_PFX='🧪 DEMO · ';
-function demoDepId(logico){              // chave do molde ('louvor','past1'…) -> id real da agenda na igreja aberta
- const d=DEPTS.find(x=>x.id===logico||x.id.indexOf(logico+'-')===0);
- return d?d.id:null;
-}
-async function demoCarregar(){
- if(!canAdmin())return toast('Somente administradores carregam dados de demonstração');
- if(!sbAtivo())return toast('No protótipo os dados de demonstração já vêm sozinhos (semente)');
- const uuid=sbIgId(); if(!uuid)return toast('Abra uma igreja primeiro');
- if(!confirm('Carregar dados de demonstração na igreja aberta?\n\n• 1 mês de escalas no calendário\n• 3 programações de culto\n\nTudo sai marcado com "'+DEMO_PFX+'" e o botão "🧹 Remover demonstração" apaga tudo de uma vez.'))return;
- const rows=[]; let n=0;
- const days=new Date(S.y,S.m+1,0).getDate();
- for(let d=1;d<=days;d++){
-  const wd=new Date(S.y,S.m,d).getDay();
-  (T[wd]||[]).forEach(e=>{
-   if((d%13)===0&&e[0]==='limpeza')return;
-   const dep=demoDepId(e[0]); if(!dep)return;
-   rows.push({church_id:uuid,department_id:dep,dia:fmt(S.y,S.m,d),texto:DEMO_PFX+e[1],distrital:isSharedDep(dep)});
-   n++;
-  });
- }
- if(!rows.length)return toast('Nenhuma agenda do modelo existe nesta igreja');
- if(!await sbEnvia('carregar as escalas de demonstração',()=>SB.from('events').insert(rows)))return;
- const pg=JSON.parse(JSON.stringify(PG_SEED)).map(p=>{p.t=DEMO_PFX+p.t;return p});
- const atual=Array.isArray(PGSTORE[S.church])?PGSTORE[S.church]:[];
- PGSTORE[S.church]=atual.concat(pg);
- await sbPgPush();
- await sbRecarregar(); render();
- toast('Demonstração carregada ✔ ('+n+' escalas + '+pg.length+' programações) – tudo marcado com '+DEMO_PFX);
-}
-async function demoRemover(){
- if(!canAdmin())return toast('Somente administradores removem dados de demonstração');
- if(!sbAtivo())return toast('No protótipo não há dados de demonstração para remover');
- const uuid=sbIgId(); if(!uuid)return toast('Abra uma igreja primeiro');
- if(!confirm('Remover TODOS os dados de demonstração desta igreja (escalas e programações marcadas com '+DEMO_PFX+')?'))return;
- const r=await sbResposta('ler as escalas de demonstração',()=>SB.from('events').select('id,texto').eq('church_id',uuid));
- if(!r)return;
- const alvos=(r.data||[]).filter(e=>e.texto&&e.texto.indexOf(DEMO_PFX)===0);
- let n=0;
- for(const e of alvos){
-  if(await sbEnvia('remover uma escala de demonstração',()=>SB.from('events').delete().eq('id',e.id)))n++;
- }
- const antes=Array.isArray(PGSTORE[S.church])?PGSTORE[S.church]:[];
- PGSTORE[S.church]=antes.filter(p=>!(p&&p.t&&p.t.indexOf(DEMO_PFX)===0));
- if(PGSTORE[S.church].length!==antes.length)await sbPgPush();
- await sbRecarregar(); render();
- toast(n||PGSTORE[S.church].length!==antes.length
-   ?'Demonstração removida ✔ ('+n+' escalas apagadas)'
-   :'Nenhum dado de demonstração nesta igreja');
-}
 function seed(y,m){
  if(sbAtivo())return;                       // modo Supabase: escalas vêm do banco
  const k=(S.church||'-')+'|'+y+'-'+m; if(seeded.has(k))return; seeded.add(k);
@@ -2098,10 +2041,6 @@ function renderSide(){
  if(isDistAdmin()){adm.style.display='';$('btnNewCh').style.display='';}
  else if(S.role==='admin_local'){adm.style.display='';$('btnNewCh').style.display='none';}
  else adm.style.display='none';
- // dados de demonstração: só no modo Supabase (no protótipo a semente já existe)
- const demo=sbAtivo()&&canAdmin();
- $('btnDemo').style.display=demo?'':'none';
- $('btnDemoDel').style.display=demo?'':'none';
  // permissão
  const r=ROLES[S.role];
  let perm=r.perm, cls=S.role==='visitante'?'view':'';
@@ -2553,14 +2492,6 @@ async function sbEntrar(){
   if(error){sbErroMsg(sbMsgErro(error));return}
   await sbEntrou(data.session);
  }catch(e){sbErroMsg('Sem conexão com o servidor – verifique a internet.')}
-}
-function sbDemo(){
- SBDEMO=true;                                   // daqui em diante o app volta a ser o protótipo
- sbErroMsg('');
- if($('loginOvl'))$('loginOvl').classList.remove('on');
- if($('chOvl'))$('chOvl').classList.add('on');
- renderChurches(); render();
- toast('Modo demonstração (sem Supabase) – dados locais de teste');
 }
 async function sbSair(){
  try{ if(SB)await SB.auth.signOut() }catch(e){}
