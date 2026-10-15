@@ -2682,13 +2682,29 @@ function sbBoot(){
  if(!SB)return;                                  // sem CDN/offline -> protótipo, como sempre
  if($('roleSel'))$('roleSel').style.display='none';
  if($('chOvl'))$('chOvl').classList.remove('on');   // escolha de igreja só depois do login
+ let resolvido=false;
+ const login=(msg)=>{                             // o login só abre quando dá para afirmar "não há sessão"
+  if(resolvido)return; resolvido=true;
+  sbErroMsg(msg||'');
+  if($('loginOvl'))$('loginOvl').classList.add('on');
+ };
+ const confere=(n)=>{                             // procura a sessão salva (com 1 re-tentativa na rede)
+  try{
+   SB.auth.getSession().then(r=>{
+    if(resolvido)return;
+    const s=r&&r.data&&r.data.session;
+    if(s){ resolvido=true; sbEntrou(s); }         // sessão válida: entra direto (fecha o login sozinho)
+    else login('');
+   }).catch(()=>{
+    if(n<2)setTimeout(()=>confere(n+1),1500);
+    else login('Sem conexão com o servidor – verifique a internet.');
+   });
+  }catch(e){ login('') }
+ };
+ sbErroMsg('Restaurando sessão…');                // aviso no modal enquanto confere (não pede senha à toa)
  if($('loginOvl'))$('loginOvl').classList.add('on');
- try{
-  SB.auth.getSession().then(r=>{
-   const s=r&&r.data&&r.data.session;
-   if(s)sbEntrou(s);
-  }).catch(()=>{});
- }catch(e){}
+ setTimeout(()=>{ if(!resolvido)login('') },7000); // trava: se travar, mostra o login mesmo
+ confere(0);
 }
 
 
