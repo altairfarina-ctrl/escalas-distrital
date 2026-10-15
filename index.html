@@ -339,6 +339,8 @@ footer a:hover,footer a:focus{text-decoration:underline}
   .layout{grid-template-columns:1fr;padding:14px 14px 26px}
   .side{position:static}
   .topbar{padding:10px 14px}
+  /* no celular o mini-calendário da lateral some (o mês se troca pelas setas ‹ › da barra do calendário) */
+  #sideCal{display:none}
 }
 </style>
 <script>
@@ -425,13 +427,15 @@ footer a:hover,footer a:focus{text-decoration:underline}
   <aside class="side" id="side">
     <button class="btn" style="width:100%;justify-content:center" id="btnNew" onclick="novoRapido()">＋ Nova escala</button>
 
-    <h3>Mês / Ano</h3>
-    <div class="srow">
-      <select class="ctl" id="selY" onchange="setYear(+this.value)"></select>
-      <button class="nbtn" onclick="nav(-1)" title="Mês anterior">‹</button>
-      <button class="nbtn" onclick="nav(1)" title="Próximo mês">›</button>
+    <div id="sideCal">
+      <h3>Mês / Ano</h3>
+      <div class="srow">
+        <select class="ctl" id="selY" onchange="setYear(+this.value)"></select>
+        <button class="nbtn" onclick="nav(-1)" title="Mês anterior">‹</button>
+        <button class="nbtn" onclick="nav(1)" title="Próximo mês">›</button>
+      </div>
+      <div id="mini"></div>
     </div>
-    <div id="mini"></div>
 
     <h3>Agendas</h3>
     <div class="quick">
