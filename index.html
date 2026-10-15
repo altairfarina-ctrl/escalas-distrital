@@ -1483,8 +1483,8 @@ function setYear(y){S.y=y;render()}
  window.addEventListener('scroll',function(){
   if(!mq.matches){document.body.classList.remove('topbarOculta');return}
   const y=window.scrollY||0;
-  if(y>140&&y>ultimo+8)document.body.classList.add('topbarOculta');          // descendo: some
-  else if(y<ultimo-8||y<=140)document.body.classList.remove('topbarOculta'); // subindo (ou perto do topo): volta
+  if(y>140&&y>ultimo+8)document.body.classList.add('topbarOculta');   // descendo: some
+  if(y<=8)document.body.classList.remove('topbarOculta');             // só reaparece no topo de cima
   ultimo=y;
  },{passive:true});
 })();
