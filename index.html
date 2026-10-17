@@ -50,19 +50,49 @@ button{font-family:var(--f-body)}
 .kick{font:700 14px var(--f-display);color:var(--orange);letter-spacing:.06em;text-transform:uppercase}
 
 /* ===== topbar ===== */
-.topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:12px 24px;
+/* desktop: TUDO em uma linha só (a barra nunca quebra) – a lista de abas encolhe/rola se faltar espaço */
+.topbar{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;padding:10px 18px;
  border-bottom:1px solid var(--border);background:var(--topbar);position:sticky;top:0;z-index:30;
  transition:transform .25s ease}                       /* some/aparece ao rolar (celular) */
 body.topbarOculta .topbar{transform:translateY(-101%)}
-.brand{font:800 21px/1.12 var(--f-display);white-space:nowrap;letter-spacing:.02em;
- text-shadow:0 0 22px rgba(47,140,255,.35)}
-.brand small{display:block;font:700 11.5px var(--f-body);color:var(--orange);letter-spacing:.12em;text-transform:uppercase}
-.tabs{display:flex;gap:6px;flex-wrap:wrap}
-.tab{padding:8px 15px;border-radius:999px;border:2px solid transparent;background:transparent;color:var(--muted);
- font:700 13.5px var(--f-display);cursor:pointer;transition:.15s}
-.tab:hover{color:var(--ink);background:var(--chip)}
+.brand{font:800 18px/1.12 var(--f-display);white-space:nowrap;letter-spacing:.04em;flex:0 0 auto;
+ display:flex;align-items:center;gap:12px;margin-right:14px;text-shadow:0 0 22px rgba(47,140,255,.35)}
+/* selo: o logo ganha caixa arredondada com fundo azulado, borda de 1px e brilho suave */
+.brand .brandico{width:34px;height:34px;flex:none;display:block;box-sizing:border-box;padding:4px;
+ border:1px solid rgba(47,140,255,.45);border-radius:10px;background:rgba(47,140,255,.13);
+ box-shadow:0 0 14px rgba(47,140,255,.3)}
+.brand .brandtx{display:block}
+.brand small{display:block;font:700 12.5px var(--f-body);color:var(--orange);letter-spacing:.1em;text-transform:uppercase}
+.tabs{display:flex;gap:8px;flex-wrap:nowrap;flex:0 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:7px 11px;border-radius:12px;border:1px solid var(--border-2);background:var(--field);color:var(--ink);
+ font:700 14px var(--f-display);cursor:pointer;transition:.15s;white-space:nowrap;flex:0 0 auto}
+.tab:hover{color:var(--ink);background:var(--field);border-color:var(--blue)}
 .tab.on{border-color:var(--blue);background:rgba(47,140,255,.16);color:var(--ink)}
-.grow{flex:1}
+.grow{flex:1 1 auto;min-width:0}
+/* controles do perfil: no desktop ficam direto na barra (contents = sem caixa extra);
+   no celular viram um menu suspensão aberto pelo botão 👤 */
+.perfil{display:contents}
+.topbar .btnPerfil,.topbar .soCelular{display:none}   /* só no celular (especificidade maior que .btn) */
+.bico{font-size:16px;line-height:1}
+/* topbar: versões compactas dos controles para tudo caber em UMA linha no desktop */
+/* lado direito padronizado: mesma altura (36px) e mesmo respiro interno (14px) em todos */
+.topbar .ctl{min-height:36px;padding:5px 14px;font-size:14px;flex:0 0 auto}
+.topbar .btn{min-height:36px;padding:5px 14px;font-size:13px;flex:0 0 auto}
+/* Imprimir/PDF e 👤 usam o mesmo visual neutro do seletor de igreja (fundo sólido, borda fina) */
+.topbar .btn.ctlLook{min-height:36px;border:1px solid var(--border-2);background:var(--field);border-radius:12px}
+.topbar .btn.ctlLook:hover{border-color:var(--blue);background:var(--field)}
+.topbar .badge{padding:5px 12px;font-size:13.5px;flex:0 1 auto;min-width:0;
+ max-width:270px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ===== controle de zoom da tela (desktop) ===== */
+.zoomctl{display:inline-flex;align-items:center;gap:2px;flex:0 0 auto;height:34px;padding:2px 4px;
+ border:2px solid var(--blue);background:rgba(47,140,255,.1);border-radius:999px}
+.zoomctl .zbtn{width:26px;height:26px;border:0;border-radius:999px;background:transparent;
+ color:var(--ink);font:800 17px/1 var(--f-display);cursor:pointer;display:grid;place-items:center}
+.zoomctl .zbtn:hover{background:rgba(47,140,255,.28)}
+.zoomctl .zbtn[disabled]{opacity:.35;cursor:default;background:transparent}
+.zoomctl .zval{min-width:44px;text-align:center;font:700 13px/1 var(--f-display);color:var(--ink);
+ letter-spacing:.02em;cursor:pointer;user-select:none}
 .ctl{min-height:40px;padding:7px 13px;border-radius:12px;border:1px solid var(--border-2);
  background:var(--field);color:var(--ink);font:600 15px var(--f-body);cursor:pointer}
 .ctl:focus{outline:2px solid var(--blue)}
@@ -74,6 +104,10 @@ body.topbarOculta .topbar{transform:translateY(-101%)}
 .btn.roxo{border-color:var(--purple);background:rgba(139,92,246,.12)}
 .btn.roxo:hover{background:rgba(139,92,246,.28)}
 .btn.mini{min-height:32px;padding:4px 13px;font-size:12.5px}
+/* visual neutro: mesmo tom do seletor de igreja e do 🖨 Imprimir / PDF */
+.btn.ctlLook{border:1px solid var(--border-2);background:var(--field);border-radius:12px}
+.btn.ctlLook:hover{border-color:var(--blue);background:var(--field)}
+.zoomctl.ctlLook{border:1px solid var(--border-2);background:var(--field);border-radius:12px}
 .badge{display:inline-flex;align-items:center;gap:7px;padding:7px 15px;border-radius:999px;
  border:1.5px solid var(--chip-b);background:var(--chip);color:var(--muted);font:700 15px var(--f-body);white-space:nowrap}
 .badge b{color:var(--ink)}
@@ -94,10 +128,20 @@ body.topbarOculta .topbar{transform:translateY(-101%)}
 
 /* ===== layout ===== */
 .layout{display:grid;grid-template-columns:296px 1fr;gap:16px;padding:16px 24px 30px;align-items:start;max-width:1900px;margin:0 auto}
+main{min-width:0;zoom:var(--zoom,1)}               /* zoom da barra superior (− % ＋) – só o conteúdo da direita.
+   min-width:0 impede que o zoom inflar a coluna 1fr do grid (a grade continua rolando dentro de .scrollx) */
+#sbQuem{display:none}                               /* papel já aparece no cartão do canto inferior esquerdo */
 body.semSide .layout{grid-template-columns:1fr}      /* sem sidebar o conteúdo ocupa tudo */
 .side{border:2px solid var(--border);border-radius:22px;background:var(--surface);padding:15px;position:sticky;top:82px}
+/* separadores neutros entre as seções da barra lateral */
+.agh,#admBox,.side>.sub{border-top:1.5px solid var(--border);padding-top:16px}
+/* no desktop o ⚙ Gerenciar agendas fica dentro de ADMINISTRAÇÃO, do mesmo tamanho dos outros */
+#admBox #btnDeps{width:100%;justify-content:center;margin-bottom:8px}
 .side h3{font:700 13px var(--f-display);color:var(--blue);letter-spacing:.06em;text-transform:uppercase;margin:16px 0 7px}
 .side h3:first-child{margin-top:0}
+/* título "Agendas" + botão "⚙ Gerenciar agendas" na mesma linha */
+.agh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:16px 0 7px}
+.agh h3{margin:0}
 .srow{display:flex;gap:8px;align-items:center}
 .srow .ctl{flex:1}
 .nbtn{width:38px;min-height:38px;border-radius:10px;border:1px solid var(--border-2);background:var(--field);
@@ -115,6 +159,14 @@ body.semSide .layout{grid-template-columns:1fr}      /* sem sidebar o conteúdo 
 .ag.on .box{background:var(--c)}
 .ag.on .box::after{content:'✓';color:#05070F;font-size:11px;font-weight:900}
 .ag span{font-size:14px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* agendas em 2 colunas (também no desktop) – o título do grupo atravessa as duas */
+#agList{display:grid;grid-template-columns:1fr 1fr;gap:1px 6px;align-content:start}
+#agList .ghead{grid-column:1/-1}
+#agList .sub{grid-column:1/-1}
+#agList .ag{padding:6px 5px;gap:7px;min-width:0}
+#agList .ag .box{width:16px;height:16px}
+#agList .ag .box::after{font-size:10px}
+#agList .ag span{font-size:14px}
 .sw{display:flex;align-items:center;gap:9px;padding:8px 7px;cursor:pointer;user-select:none;color:var(--muted);font-size:14px}
 .sw:hover{background:rgba(47,140,255,.08);border-radius:10px}
 .sw input{width:17px;height:17px;accent-color:var(--blue)}
@@ -124,10 +176,6 @@ body.semSide .layout{grid-template-columns:1fr}      /* sem sidebar o conteúdo 
 .quick button:hover{color:var(--ink);border-color:var(--blue)}
 .ghead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;padding:0 7px 4px}
 .ghead span{font:700 12px var(--f-display);color:var(--purple);letter-spacing:.05em;text-transform:uppercase}
-.gtog{border:1.5px solid var(--chip-b);background:var(--chip);color:var(--muted);
- border-radius:999px;padding:3px 10px;font:700 11.5px var(--f-body);cursor:pointer}
-.gtog:hover{color:var(--ink);border-color:var(--purple)}
-.gtog.on{background:rgba(61,220,151,.14);border-color:var(--green);color:var(--green)}
 .deprow{display:grid;grid-template-columns:46px 1fr 84px 140px 40px;gap:8px;align-items:center;margin-bottom:8px}
 .deprow .dcolor{width:46px;height:40px;padding:2px;border:1.5px solid var(--c);border-radius:10px;background:var(--field);cursor:pointer}
 .deprow .dname{min-height:40px;padding:8px 11px;border-radius:11px;border:1px solid var(--border-2);
@@ -162,9 +210,48 @@ body.semSide .layout{grid-template-columns:1fr}      /* sem sidebar o conteúdo 
 .me .who{font:700 14.5px var(--f-display)}
 .me .perm{color:var(--green);font-size:13px;font-weight:700;margin-top:2px}
 .me .perm.view{color:var(--dim)}
+/* o cartão de permissão deixou de ficar no fim da barra lateral: agora é uma dica
+   flutuante que aparece ao passar o mouse (ou chegar com o Tab) no botão 👤 */
+.perfTip{position:absolute;top:calc(100% + 9px);right:18px;width:270px;margin:0;z-index:60;
+ opacity:0;visibility:hidden;transform:translateY(-6px);pointer-events:none;
+ border:2px solid var(--border-2);border-radius:16px;background:var(--topbar);
+ box-shadow:0 18px 46px rgba(0,0,0,.5);transition:.16s ease}
+.perfTip.on{opacity:1;visibility:visible;transform:none}
 
 /* ===== toolbar ===== */
-.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;position:relative}
+/* "＋ Nova escala" ocupa todo o espaço livre entre o mês e a Exibição, com o texto centralizado */
+.toolbar #btnNew{flex:1 1 auto;min-height:48px;padding:9px 28px;font-size:18px;gap:9px;
+  justify-content:center;box-shadow:0 4px 16px rgba(139,92,246,.28)}
+.toolbar #btnNew:hover{box-shadow:0 6px 20px rgba(139,92,246,.4)}
+/* grupo da direita (Exibição, tema e zoom) encostado na borda, com os itens centralizados entre si */
+.toolbar #btnExib,.toolbar #btnTheme,.toolbar .zoomctl{margin-left:auto}
+/* "Exibição da grade": o seletor de dias abre num painel da própria barra (não ocupa a lateral) */
+#btnExib{font-size:14px}
+#exibBox{position:absolute;top:calc(100% + 9px);right:0;z-index:40;display:none;
+  width:296px;padding:12px 14px;border:2px solid var(--border-2);border-radius:16px;
+  background:var(--topbar);box-shadow:0 18px 46px rgba(0,0,0,.5)}
+#exibBox.on{display:block}
+#exibBox h3{font:700 13px var(--f-display);color:var(--blue);letter-spacing:.06em;
+  text-transform:uppercase;margin:0 0 4px}
+#exibBox .sw{padding:9px 8px;line-height:1.35;align-items:flex-start}
+#exibBox .sw input{margin-top:2px}
+/* menu "Links Externos" ao lado das abas do cabeçalho */
+.linksWrap{position:relative;flex:0 0 auto}
+.linksBox{position:absolute;top:calc(100% + 9px);left:0;z-index:60;display:none;
+ max-width:calc(100vw - 32px);width:266px;padding:9px;border:2px solid var(--border-2);
+ border-radius:16px;background:var(--topbar);box-shadow:0 18px 46px rgba(0,0,0,.5)}
+.linksBox.on{display:block}
+.linksBox h3{font:700 12.5px var(--f-display);color:var(--blue);letter-spacing:.06em;
+ text-transform:uppercase;margin:2px 5px 6px}
+.linksBox a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;
+ color:var(--ink);text-decoration:none;font:700 14px var(--f-display);transition:.15s}
+.linksBox a:hover,.linksBox a:focus{background:rgba(47,140,255,.14);outline:none}
+.linksBox a small{display:block;font:600 11.5px var(--f-body);color:var(--dim);margin-top:1px}
+.linksBox a .lic{display:grid;place-items:center;width:34px;height:24px;flex:none}
+.linksBox a .lic svg{display:block;max-width:100%;max-height:100%}
+.linksBox a .go{margin-left:auto;color:var(--dim);font-size:13px;font-style:normal}
+/* título "＋ Nova escala" agora mora dentro da barra do mês */
 .toolbar h1{font:800 clamp(21px,3vw,30px) var(--f-display);margin:0;text-shadow:0 0 26px rgba(47,140,255,.35)}
 .navi{display:flex;gap:6px}
 .info{padding:8px 15px;border-radius:12px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;width:100%}
@@ -186,9 +273,12 @@ body.semSide .layout{grid-template-columns:1fr}      /* sem sidebar o conteúdo 
  cursor:pointer;position:relative;transition:background .12s;background:var(--cell)}
 .cell:hover{background:var(--cell-hover)}
 .cell.off .dnum{color:var(--off)}
-.dnum{font:700 13.5px var(--f-display);color:var(--muted);margin-bottom:3px;display:inline-flex;align-items:center;justify-content:center;
- min-width:24px;height:24px;padding:0 5px;border-radius:999px}
-.dnum.today{background:var(--blue);color:#fff;box-shadow:0 0 14px rgba(47,140,255,.6)}
+/* dia em branco; o .MM do fim usa o mesmo tom neutro dos dias que não são do mês */
+.dnum{font:800 17px var(--f-display);letter-spacing:.01em;color:var(--ink);margin-bottom:5px;display:inline-flex;align-items:center;justify-content:center;
+ min-width:34px;height:30px;padding:0 8px;border-radius:999px}
+.dnum .mes{color:var(--off)}
+/* hoje: só o aro azul – o fundo continua igual ao dos demais dias */
+.dnum.today{background:transparent;color:var(--ink);border:2px solid var(--blue);box-shadow:none}
 .pill{display:block;width:100%;margin-top:4px;padding:3px 8px;border:0;border-radius:7px;cursor:pointer;text-align:left;
  font:700 12.5px var(--f-body);color:#05070F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
  animation:pop .18s ease}
@@ -242,8 +332,13 @@ body.hidesmall .wdays,body.hidesmall .grid{grid-template-columns:1.22fr 1.22fr 1
 .toast.on{opacity:1;transform:translate(-50%,0)}
 
 footer{max-width:1900px;margin:0 auto;padding:18px 24px 34px;border-top:1px solid var(--border);color:var(--dim);font-size:13.5px; display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
-footer a{color:#2F8CFF;text-decoration:none;font-weight:600}
-footer a:hover,footer a:focus{text-decoration:underline}
+/* logo na frente do texto do rodapé (mesmo selo, em versão pequena) */
+footer .fbrand{display:inline-flex;align-items:center;gap:9px}
+footer .fico{width:26px;height:26px;flex:none;box-sizing:border-box;padding:3px;
+ border:1px solid rgba(47,140,255,.45);border-radius:8px;background:rgba(47,140,255,.13)}
+footer .sw{padding:2px 6px;border-radius:8px;font-size:13px;color:var(--dim);align-items:center}
+footer .sw:hover{background:rgba(47,140,255,.08)}
+footer .sw input{width:16px;height:16px}
 .print-head{display:none}
 
 /* ===== print / PDF ===== */
@@ -252,11 +347,14 @@ footer a:hover,footer a:focus{text-decoration:underline}
   :root{color-scheme:light;--ink:#111;--muted:#444;--dim:#666;--panel:#fff;--surface:#fff;--surface-2:#fff;
         --field:#fff;--cell:#fff;--border:#999;--border-2:#999;--line:#ccc;--head-bg:#eef2f8;--day-name:#14477d;--off:#888}
   body{background:#fff!important;color:#111}
-  .topbar,.side,.toolbar,.ovl,.toast,footer,.hintday{display:none!important}
+  .topbar,.side,.toolbar,.ovl,.toast,footer,.hintday,.zoomctl{display:none!important}
+  main{zoom:1!important}                          /* o PDF sai na escala 100% */
   .print-head{display:block!important;margin-bottom:8px}
   .print-head h2{font:800 19px var(--f-display);margin:0;color:#111}
   .print-head .pl{color:#444;font-size:13px;margin-top:2px}
   .layout{display:block;padding:0}
+  #viewCal{display:block!important;height:auto!important;min-height:0!important}   /* imprime a agenda inteira */
+  .wdays{position:static!important}
   .gcal{border:1px solid #999;border-radius:0;background:#fff}
   .scrollx{overflow:visible}
   .wdays,.grid{min-width:0!important;grid-template-columns:1.32fr .92fr .92fr 1.32fr .92fr .92fr 1.32fr!important}
@@ -265,8 +363,8 @@ footer a:hover,footer a:focus{text-decoration:underline}
   .wdays div.sat,.wdays div.sun,.wdays div.qua{background:#dce7f7!important;color:#14477d!important;text-shadow:none!important}
   .small{display:block!important}
   .cell{min-height:92px;border-color:#ccc!important;background:#fff!important;page-break-inside:avoid}
-  .dnum{color:#333}
-  .dnum.today{background:#14477d!important;color:#fff!important;box-shadow:none}
+  .dnum{color:#333;font-size:12px;height:22px;min-width:26px;padding:0 6px;margin-bottom:3px}
+  .dnum.today{background:transparent!important;color:#14477d!important;border:2px solid #14477d!important;box-shadow:none}
   .pill{background:#f1f4fa!important;color:#111!important;border-left:6px solid var(--c);border-radius:4px;
    font-size:11.5px;padding:2px 6px;filter:none!important;transform:none!important}
   .oftool,#ofInfo,#pgInfo,.ofpdf,.pgacts{display:none!important}
@@ -338,9 +436,73 @@ footer a:hover,footer a:focus{text-decoration:underline}
 @media (max-width:980px){
   .layout{grid-template-columns:1fr;padding:14px 14px 26px}
   .side{position:static}
-  .topbar{padding:10px 14px}
   /* no celular o mini-calendário da lateral some (o mês se troca pelas setas ‹ › da barra do calendário) */
   #sideCal{display:none}
+
+  /* ===== topbar em 2 linhas ===== */
+  .topbar{padding:8px 12px;gap:8px;row-gap:7px;align-items:center;flex-wrap:wrap}   /* no celular volta a quebrar em 2 linhas */
+  .brand{order:1;font-size:17px;flex:0 0 auto;margin-right:0}
+  .brand .brandico{width:30px;height:30px;padding:3px}   /* selo menor na linha do celular */
+  .brand small{font-size:10px}
+  .grow{display:none}                          /* no celular o espaço sobra do próprio #chSel */
+  #chSel{order:3;flex:1;min-width:0;min-height:38px;padding:6px 10px;font-size:14px}
+  /* linha 1: botões compactos (só o ícone) à direita */
+  .topbar>.btn{order:4;min-height:38px;padding:7px 11px;flex:0 0 auto}
+  .topbar .btn.ctlLook{min-height:38px;border-radius:12px}   /* mantém o visual neutro no celular */
+  .topbar>.btn .btxt{display:none}          /* no celular vira botão de ícone */
+  /* tema e zoom moram na toolbar (barra do mês) – também compactos no celular */
+  .toolbar>.btn #btnThemeTxt{display:none}
+  .topbar .btnPerfil{order:5;display:inline-flex}   /* 👤 abre o menu de perfil */
+  .topbar>.linksWrap{order:4;flex:0 0 auto}         /* 🔗 Links Externos na linha 1, só o ícone */
+  .linksWrap .btn{min-height:38px;padding:7px 11px}
+  .topbar>.linksWrap .btxt{display:none}
+  .topbar .soCelular{order:6;display:inline-flex}   /* 🚪 sair sempre à mão */
+  /* linha 2: abas numa faixa que rola para os lados */
+  .tabs{order:9;flex-basis:100%;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+        scrollbar-width:none;margin:2px -12px 0;padding:2px 12px 3px}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;white-space:nowrap;padding:7px 14px;font-size:14px}
+
+  /* ===== agendas da lateral em 2 colunas (maiores) ===== */
+  /* no celular o ⚙ Gerenciar agendas volta para o lado do título AGENDAS (posição original) */
+  .agh #btnDeps{width:auto;flex:0 0 auto;margin-bottom:0;min-height:34px;padding:5px 14px;font-size:13px}
+  #agList{display:grid;grid-template-columns:1fr 1fr;gap:2px 10px;align-content:start}
+  #agList .ghead{grid-column:1/-1}               /* o título do grupo atravessa as 2 colunas */
+  #agList .ag{padding:9px 8px;gap:10px}
+  #agList .ag .box{width:19px;height:19px;border-radius:6px}
+  #agList .ag .box::after{font-size:12px}
+  #agList .ag span{font-size:15px}
+  #agList .sub{grid-column:1/-1}                 /* texto avulso (ex.: "nenhuma agenda") ocupa a linha toda */
+
+  /* ===== menu de perfil (aberto pelo 👤) ===== */
+  .perfil{display:none;position:absolute;top:calc(100% + 8px);right:12px;left:12px;
+          flex-direction:column;gap:8px;padding:10px;border:1px solid var(--border-2);
+          border-radius:14px;background:var(--topbar);box-shadow:0 14px 40px rgba(0,0,0,.45)}
+  .perfil.on{display:flex}
+  .perfil .ctl{width:100%;min-height:42px}
+  .perfil .badge{justify-content:center;white-space:normal;text-align:center;
+                 max-width:none;overflow:visible;text-overflow:clip}
+  .perfil .btn{justify-content:center;width:100%}
+
+  /* tela muito estreita: a marca encolhe para os botões caberem na linha 1 */
+  @media (max-width:430px){
+    .brand{font-size:14.5px}
+    .brand small{font-size:9px;letter-spacing:.08em}
+    #chSel{padding:5px 8px;font-size:13px}
+    .topbar>.btn{padding:6px 9px}
+  }
+
+  /* ===== agenda com rolagem própria: o cabeçalho (mês + semana) fica congelado ===== */
+  .zoomctl{display:none}                          /* zoom é recurso do desktop */
+  main{zoom:1!important}                          /* tamanhos do celular já são os "de verdade" */
+  #sbQuem{display:inline-flex}                    /* no celular o badge fica no menu do 👤 */
+  #viewCal{display:flex;flex-direction:column;
+           height:calc(100vh - var(--topoH,110px) - 14px);
+           height:calc(100dvh - var(--topoH,110px) - 14px);min-height:420px}
+  #viewCal>*{flex:none}                                   /* botão, barra do mês e aviso não rolam */
+  #viewCal>.gcal{flex:1;min-height:0;display:flex;flex-direction:column}
+  .scrollx{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch}
+  .wdays{position:sticky;top:0;z-index:5}                 /* semana cola no topo da rolagem */
 }
 </style>
 <script>
@@ -352,6 +514,14 @@ footer a:hover,footer a:focus{text-decoration:underline}
 </script>
 </head>
 <body>
+
+<!-- ===== LOGO IASD (reaproveitado no topo e no rodapé) ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <symbol id="icoIasd" viewBox="0 0 129 163">
+    <rect width="129" height="163" rx="14" fill="#153A6B"/>
+    <path transform="translate(3.05,19.90) scale(0.5830)" fill="#fff" d="m 128.7,161.7 c -11.5,-1.9 -17.7,3.5 -19.6,8.6 -0.2,0.5 -0.7,0.4 -0.7,0 v -1.6 c 0,-5.7 5.1,-10.9 11.1,-17 l 10,-10 26.6,4.6 c 0,0 7.6,7.6 14.1,14.1 12.5,-14.8 20.1,-34 20.1,-54.9 0,-46.9 -38,-84.9 -84.9,-84.9 -46.9,0 -84.9,38 -84.9,84.9 0,20.9 7.6,40.1 20.1,54.9 6.5,-6.5 14.1,-14.1 14.1,-14.1 l 30.2,-5.2 c 14,-2.4 17.5,0.7 17.5,5.4 0,0.2 -0.2,0.4 -0.4,0.4 h -8.5 c -0.2,0 -0.2,0.2 -0.2,0.4 v 5.2 c 0,0.2 -0.2,0.2 0,0.2 h 8.7 c 0.2,0 0.4,0.2 0.4,0.4 0,0 0,16.9 0,17.3 0,0.4 -0.5,0.5 -0.7,0.1 -1.9,-5.1 -8.1,-10.5 -19.6,-8.6 0,0 -19.9,3.4 -34.7,6 15.2,14.1 35.5,22.8 57.9,22.8 22.4,0 42.7,-8.6 57.9,-22.8 -14.6,-2.8 -34.5,-6.2 -34.5,-6.2 z m -19.5,0.2 c -0.1,0.5 -0.7,0.5 -0.7,0 V 153 c 0,-0.2 0.1,-0.4 0.3,-0.4 h 4.4 c -1.9,2.7 -3.2,5.3 -4,9.3 z m 31.5,-55.5 c 2.1,6.9 0.7,17.4 -9.2,27.4 l -12,11.8 c -0.3,0.3 -0.7,0.8 -1,0.8 h -8.2 c 2,-3 5.4,-6.8 9.2,-10.6 l 8.3,-8.3 C 138.3,117 140,112 140,106.2 c 0.1,-0.4 0.6,-0.4 0.7,0.2 z m -16.3,-6.5 c 6.8,-6.8 8.5,-14.7 3,-19.4 -0.5,-0.4 -0.2,-0.9 0.4,-0.6 6.8,3.1 12.1,14.3 0.5,25.9 l -8.8,8.8 c -6,6 -8.8,8.8 -10.3,16.1 -0.1,0.5 -0.7,0.5 -0.7,0 v -8.9 c 0,-5.7 5,-10.9 11.1,-17 z m -54.1,8 C 68.2,101 69.6,90.5 79.5,80.5 l 26.4,-26.4 c 6,-6 9.1,-8.9 10.6,-16.1 0.1,-0.5 1,-0.5 1,0 v 8.9 c 0,5.7 -5.3,10.9 -11.4,17 L 83.3,86.6 C 72.7,97.2 71,102.1 71,107.9 c 0,0.6 -0.5,0.6 -0.7,0 z m 4,15.7 c -5.9,-7.2 -3.9,-18.4 7.7,-30 l 23.9,-23.9 c 6,-6 9.1,-8.9 10.6,-16.2 0.1,-0.5 1,-0.5 1,0 v 9 c 0,5.7 -5.3,10.9 -11.4,17 l -21.2,21.1 c -4.4,4.4 -13.9,13.8 -10,22.6 0.3,0.6 -0.2,0.9 -0.6,0.4 z m 12.3,-9.2 c -6.8,6.8 -8.5,14.7 -3,19.4 0.5,0.4 0.2,0.9 -0.4,0.6 -6.8,-3.1 -12.1,-14.3 -0.5,-25.9 l 23.2,-23.2 c 6,-6 9.1,-8.8 10.6,-16.1 0.1,-0.5 1,-0.5 1,0 v 8.9 c 0,5.7 -5.3,10.9 -11.4,17 z m 21.9,23 c 0,-5.7 5,-10.9 11.1,-17 l 6.7,-6.7 c 4.4,-4.4 13.8,-13.8 9.9,-22.6 -0.3,-0.6 0.2,-0.9 0.6,-0.4 5.9,7.2 3.9,18.4 -7.7,30 l -9.5,9.5 c -6,6 -8.8,8.9 -10.3,16.2 -0.1,0.5 -0.7,0.5 -0.7,0 v -9 z"/>
+  </symbol>
+</defs></svg>
 
 <!-- ===== LOGIN (Supabase) ===== -->
 <div class="ovl" id="loginOvl" style="z-index:90">
@@ -395,7 +565,7 @@ footer a:hover,footer a:focus{text-decoration:underline}
 
 <!-- ===== TOPBAR ===== -->
 <header class="topbar">
-  <div class="brand">AGENDA DISTRITAL<small>Ivailândia – ANP</small></div>
+  <div class="brand"><svg class="brandico" viewBox="0 0 64 64" role="img" aria-label="IASD"><use href="#icoIasd"/></svg><span class="brandtx">AGENDA DISTRITAL<small>IVAILÂNDIA | ANP</small></span></div>
   <nav class="tabs" id="tabs">
     <button class="tab on" data-m="escalas">📅 Escalas</button>
     <button class="tab" data-m="programacao">🗓 Programação</button>
@@ -403,29 +573,79 @@ footer a:hover,footer a:focus{text-decoration:underline}
     <button class="tab" data-m="pastoral">⛪ Agenda Pastoral</button>
     <button class="tab" data-m="assoc">🏛 Agenda Associação</button>
   </nav>
+  <!-- menu Links Externos (ao lado das abas) -->
+  <div class="linksWrap">
+    <button class="btn azul ctlLook" id="btnLinks" onclick="toggleLinks(event)"
+      aria-haspopup="true" aria-expanded="false" title="Links externos">
+      <span class="bico">🔗</span><span class="btxt">Links Externos</span></button>
+    <div class="linksBox" id="linksBox" role="menu">
+      <h3>Links Externos</h3>
+      <a role="menuitem" href="https://anp.adventistas.org/" target="_blank" rel="noopener"
+         title="Site oficial da ANP – Associação Norte Paranaense">
+        <span class="lic" aria-hidden="true">
+          <svg viewBox="0 0 129 163" width="16" height="20" role="img" aria-label="IASD">
+            <use href="#icoIasd"/>
+          </svg>
+        </span>
+        <span>Site da ANP<small>Associação Norte Paranaense</small></span>
+        <i class="go">↗</i>
+      </a>
+      <a role="menuitem" href="https://giving.7me.app/login" target="_blank" rel="noopener"
+         title="7me – dízimos e ofertas online">
+        <span class="lic" aria-hidden="true">
+          <svg viewBox="0 0 40 34" width="30" height="22" role="img" aria-label="7me">
+            <text x="2" y="27" font-family="Georgia,'Times New Roman',serif" font-size="31" font-weight="700" fill="#7FA8E8">7</text>
+            <text x="19" y="27" font-family="Georgia,'Times New Roman',serif" font-size="27" font-style="italic" fill="#C9D4E6">me</text>
+          </svg>
+        </span>
+        <span>7me – Dízimos<small>Dízimos e ofertas online</small></span>
+        <i class="go">↗</i>
+      </a>
+      <a role="menuitem" href="https://www.acmsnet.org/" target="_blank" rel="noopener"
+         title="ACMS – site oficial">
+        <span class="lic" aria-hidden="true">
+          <svg viewBox="0 0 34 34" width="20" height="20" role="img" aria-label="ACMS">
+            <circle cx="17" cy="17" r="17" fill="#2F6FED"/>
+            <text x="17" y="21.5" text-anchor="middle" font-family="Arial,Helvetica,sans-serif"
+                  font-size="10.5" font-weight="800" fill="#fff" letter-spacing=".2">ACMS</text>
+          </svg>
+        </span>
+        <span>ACMS<small>Site oficial</small></span>
+        <i class="go">↗</i>
+      </a>
+    </div>
+  </div>
   <div class="grow"></div>
   <select class="ctl" id="chSel" title="Igreja" onchange="selChurch(this.value)"></select>
-  <button class="btn azul" onclick="abrirImpressao()">🖨 Imprimir / PDF</button>
-  <button class="btn" id="btnTheme" onclick="cycleTheme()"
-    title="Tema da interface: automático (segue o sistema), escuro ou claro">💻 Automático</button>
-  <select class="ctl" id="roleSel" title="Entrar como (modo protótipo, sem Supabase)" onchange="setRole(this.value)">
-    <option value="visitante">👤 Entrar como: Membro</option>
-    <option value="admin_dist">🛠 Entrar como: Admin Distrital</option>
-    <option value="admin_local">🛠 Entrar como: Admin Local</option>
-    <option value="membro">🎵 Entrar como: Membro (Líder)</option>
-  </select>
-  <select class="ctl" id="alSel" title="Cada igreja tem o seu Admin Local – escolha de quem é este Admin Local"
-    onchange="setMyChurch(this.value)" style="display:none"></select>
-  <select class="ctl" id="lidSel" title="Membro (Líder): quem está entrando – edita só as agendas marcadas no cadastro dele"
-    onchange="setLider(this.value)" style="display:none"></select>
-  <span class="badge" id="sbQuem" style="display:none"></span>
-  <button class="btn" id="btnSair" style="display:none" onclick="sbSair()" title="Sair da conta">🚪 Sair</button>
+  <button class="btn azul ctlLook" onclick="abrirImpressao()" title="Imprimir / PDF">
+    <span class="bico">🖨</span><span class="btxt">Imprimir / PDF</span></button>
+  <button class="btn azul ctlLook" id="btnPerfil" onclick="togglePerfil(event)"
+    aria-label="Perfil e conta">👤</button>
+  <!-- cartão de permissão: aparece só ao passar o mouse no 👤 -->
+  <div class="me perfTip" id="perfTip" role="tooltip" aria-hidden="true"></div>
+  <button class="btn soCelular" id="btnSair2" style="display:none" onclick="sbSair()" title="Sair da conta">
+    <span class="bico">🚪</span><span class="btxt">Sair</span></button>
+  <!-- no celular estes controles ficam dentro do menu de perfil (👤); no desktop aparecem direto na barra -->
+  <div class="perfil" id="perfilBox">
+    <select class="ctl" id="roleSel" title="Entrar como (modo protótipo, sem Supabase)" onchange="setRole(this.value)">
+      <option value="visitante">👤 Entrar como: Membro</option>
+      <option value="admin_dist">🛠 Entrar como: Admin Distrital</option>
+      <option value="admin_local">🛠 Entrar como: Admin Local</option>
+      <option value="membro">🎵 Entrar como: Membro (Líder)</option>
+    </select>
+    <select class="ctl" id="alSel" title="Cada igreja tem o seu Admin Local – escolha de quem é este Admin Local"
+      onchange="setMyChurch(this.value)" style="display:none"></select>
+    <select class="ctl" id="lidSel" title="Membro (Líder): quem está entrando – edita só as agendas marcadas no cadastro dele"
+      onchange="setLider(this.value)" style="display:none"></select>
+    <span class="badge" id="sbQuem" style="display:none"></span>
+    <button class="btn" id="btnSair" style="display:none" onclick="sbSair()" title="Sair da conta">
+      <span class="bico">🚪</span><span class="btxt">Sair</span></button>
+  </div>
 </header>
 
 <div class="layout">
   <!-- ===== SIDEBAR ===== -->
   <aside class="side" id="side">
-    <button class="btn" style="width:100%;justify-content:center" id="btnNew" onclick="novoRapido()">＋ Nova escala</button>
 
     <div id="sideCal">
       <h3>Mês / Ano</h3>
@@ -437,35 +657,25 @@ footer a:hover,footer a:focus{text-decoration:underline}
       <div id="mini"></div>
     </div>
 
-    <h3>Agendas</h3>
+    <div class="agh">
+      <h3>Agendas</h3>
+    </div>
     <div class="quick">
       <button onclick="setAll(true)">✔ Todos</button>
       <button onclick="setAll(false)">✘ Nenhum</button>
       <button onclick="setMine()">Só as minhas</button>
     </div>
     <div id="agList"></div>
-    <button class="btn roxo" id="btnDeps" style="display:none;width:100%;justify-content:center;margin-top:10px"
-      onclick="openDeps()">⚙ Gerenciar agendas</button>
-    <div id="depHint" style="display:none;color:var(--dim);font-size:12px;padding:6px 7px 0">
-      Admin Distrital: cadastre agendas, troque cores e nomes.</div>
-
-    <h3>Dias da semana</h3>
-    <label class="sw"><input type="checkbox" id="ckHide" onchange="toggleHide(this.checked)"> Ocultar seg · ter · qui · sex</label>
-    <div style="color:var(--dim);font-size:12.5px;padding:0 7px">DOM, QUA e SÁB têm coluna maior e o cabeçalho em destaque.</div>
-
-    <h3>Meses vizinhos</h3>
-    <label class="sw"><input type="checkbox" id="ckOff" onchange="toggleOffDays(this.checked)"> Mostrar escalas dos dias de fora do mês</label>
-    <div style="color:var(--dim);font-size:12.5px;padding:0 7px">Desligado, os dias de setembro/novembro que aparecem na grade ficam só com o número.</div>
 
     <div id="admBox" style="display:none">
+      <button class="btn roxo" id="btnDeps"
+        onclick="openDeps()">⚙ Gerenciar agendas</button>
       <h3>Administração</h3>
       <button class="btn azul" id="btnNewUser" style="width:100%;justify-content:center;margin-bottom:8px"
         onclick="openUsers()">👥 Gerenciar usuários</button>
       <button class="btn roxo" id="btnNewCh" style="width:100%;justify-content:center"
         onclick="addChurchUI()">⛪ Gerenciar igrejas</button>
     </div>
-
-    <div class="me" id="meBox"></div>
   </aside>
 
   <!-- ===== CONTEÚDO ===== -->
@@ -480,7 +690,24 @@ footer a:hover,footer a:focus{text-decoration:underline}
         <button class="btn azul" onclick="goToday()">Hoje</button>
         <h1 id="ttl">—</h1>
         <div class="grow"></div>
-        <span class="badge" id="chBadge">⛪ —</span>
+        <button class="btn roxo" id="btnNew" onclick="novoRapido()">＋ Nova escala</button>
+        <div class="grow"></div>
+        <button class="btn azul ctlLook" id="btnTheme" onclick="cycleTheme()"
+          title="Tema da interface: automático (segue o sistema), escuro ou claro">
+          <span class="bico" id="btnThemeIco">💻</span><span class="btxt" id="btnThemeTxt">Automático</span></button>
+        <button class="btn azul ctlLook" id="btnExib" onclick="toggleExib(event)"
+          title="Exibição da grade">🗒 Exibição</button>
+        <div id="exibBox">
+          <h3>Exibição da grade</h3>
+          <label class="sw"><input type="checkbox" id="ckHide" onchange="toggleHide(this.checked)"> Ocultar seg · ter · qui · sex</label>
+          <label class="sw"><input type="checkbox" id="ckOff" onchange="toggleOffDays(this.checked)"> Mostrar escalas dos dias de fora do mês</label>
+        </div>
+        <!-- zoom da tela -->
+        <div class="zoomctl ctlLook" id="zoomBox" title="Zoom da tela">
+          <button class="zbtn" id="zoomDown" onclick="zoomPasso(-1)" title="Diminuir" aria-label="Diminuir zoom">−</button>
+          <span class="zval" id="zoomVal" onclick="zoomReset()" title="Voltar ao 100%">100%</span>
+          <button class="zbtn" id="zoomUp" onclick="zoomPasso(1)" title="Aumentar" aria-label="Aumentar zoom">＋</button>
+        </div>
       </div>
 
       <div class="info view" id="infoBar"></div>
@@ -555,9 +782,7 @@ footer a:hover,footer a:focus{text-decoration:underline}
 </div>
 
 <footer>
-  <span>AGENDA DISTRITAL – Distrito Ivailândia – ANP</span>
-  <a href="https://anp.adventistas.org/" target="_blank" rel="noopener"
-     title="Site oficial da ANP – Associação Norte Paranaense">🌐 Site da ANP · anp.adventistas.org</a>
+  <span class="fbrand"><svg class="fico" viewBox="0 0 64 64" role="img" aria-label="IASD"><use href="#icoIasd"/></svg>AGENDA DISTRITAL – Distrito Ivailândia – ANP</span>
 </footer>
 
 <!-- ===== MODAL OFICIAL ===== -->
@@ -737,6 +962,7 @@ footer a:hover,footer a:focus{text-decoration:underline}
 <script>
 const $=id=>document.getElementById(id);
 const MESES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MESES3=MESES.map(m=>m.slice(0,3).toLowerCase());   /* jan fev mar … dez (no dia da célula) */
 const WD=['DOMINGO','SEGUNDA','TERÇA','QUARTA','QUINTA','SEXTA','SÁBADO'];
 
 /* ================= SUPABASE (Etapa 2: login + leitura) ================= */
@@ -927,7 +1153,10 @@ function applyTheme(t){
  const eff=(t==='auto')?(prefersLight()?'light':'dark'):t;
  document.documentElement.setAttribute('data-theme',eff);
  window.__tema=t;
- const b=$('btnTheme'); if(b)b.textContent=TEMA_LABEL[t];
+ const b=$('btnTheme');
+ if(b){const ico=b.querySelector('.bico'),txt=b.querySelector('.btxt');
+  if(ico&&txt){const p=TEMA_LABEL[t].split(' ');ico.textContent=p[0];txt.textContent=p.slice(1).join(' ')}  // mantém ícone + texto (botão de ícone no celular)
+  else b.textContent=TEMA_LABEL[t];}
 }
 function cycleTheme(){
  const cur=window.__tema||'auto';
@@ -944,6 +1173,30 @@ function initTheme(){
   if(mq.addEventListener)mq.addEventListener('change',on);
   else if(mq.addListener)mq.addListener(on);
  }
+}
+
+/* ===== zoom da tela (barra superior: − % ＋) – mexe só no conteúdo da direita ===== */
+const ZOOMS=[0.7,0.8,0.9,1,1.1,1.25,1.5,1.75,2];       // passos disponíveis
+function aplicaZoom(){
+ const v=window.__zoom||1;
+ document.documentElement.style.setProperty('--zoom',v);
+ const l=$('zoomVal'); if(l)l.textContent=Math.round(v*100)+'%';
+ const d=$('zoomDown'),u=$('zoomUp');
+ if(d)d.disabled=(ZOOMS.indexOf(v)<=0);
+ if(u)u.disabled=(ZOOMS.indexOf(v)<0||ZOOMS.indexOf(v)>=ZOOMS.length-1);
+ try{localStorage.setItem('escalaZoom',v)}catch(e){}
+ if(window.medeTopo)medeTopo();                   // agenda congelada se recompõe
+}
+function zoomPasso(delta){
+ const i=ZOOMS.indexOf(window.__zoom||1);
+ const n=Math.max(0,Math.min(ZOOMS.length-1,(i<0?ZOOMS.indexOf(1):i)+delta));
+ window.__zoom=ZOOMS[n]; aplicaZoom();
+}
+function zoomReset(){window.__zoom=1; aplicaZoom()}
+function initZoom(){
+ let v=1; try{v=parseFloat(localStorage.getItem('escalaZoom'))||1}catch(e){}
+ if(ZOOMS.indexOf(v)<0)v=1;                       // só aceita passos da lista
+ window.__zoom=v; aplicaZoom();
 }
 
 function seed(y,m){
@@ -1397,6 +1650,7 @@ function renderUserList(){
 function setRole(v){
  S.role=v;
  render();
+ renderPerfil();                         // o 👤 passa a mostrar quem entrou
  renderChurches();
 }
 function setMyChurch(c){              // cada igreja tem o SEU Admin Local (seletor do topo)
@@ -1417,10 +1671,49 @@ function switchMod(m){
 }
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>switchMod(b.dataset.m));
 
+/* ---------- menu "Exibição da grade" na barra do mês ---------- */
+function toggleExib(ev){
+ const p=$('exibBox'); if(!p)return;
+ if(ev)ev.stopPropagation();
+ p.classList.toggle('on');
+}
+
+/* ---------- menu "Links Externos" ao lado das abas ---------- */
+function toggleLinks(ev){
+ const p=$('linksBox'); if(!p)return;
+ if(ev)ev.stopPropagation();
+ const on=p.classList.toggle('on');
+ const b=$('btnLinks'); if(b)b.setAttribute('aria-expanded',on?'true':'false');
+}
+
+/* ---------- menu de perfil no celular (👤) ---------- */
+function togglePerfil(ev){
+ const p=$('perfilBox'); if(!p)return;
+ if(ev)ev.stopPropagation();
+ p.classList.toggle('on');
+}
+// fecha os menus (exibição da grade, links externos e perfil) ao tocar fora deles
+document.addEventListener('click',function(ev){
+ ['exibBox','linksBox','perfilBox'].forEach(function(id){
+  const p=$(id); if(!p||!p.classList.contains('on'))return;
+  if(p.contains(ev.target))return;
+  p.classList.remove('on');
+ });
+});
+
 /* ---------- navegação ---------- */
 function nav(k){let m=S.m+k,y=S.y;if(m<0){m=11;y--}if(m>11){m=0;y++}S.m=m;S.y=y;render()}
 function goToday(){const d=new Date();S.y=d.getFullYear();S.m=d.getMonth();render()}
 function setYear(y){S.y=y;render()}
+// altura da barra superior -> a agenda ocupa o resto da tela e rola por dentro (cabeçalho congelado)
+function medeTopo(){
+ const tb=document.querySelector('.topbar'); if(!tb)return;
+ document.documentElement.style.setProperty('--topoH',(tb.offsetHeight||0)+'px');
+}
+if(window.addEventListener){
+ medeTopo();
+ window.addEventListener('resize',medeTopo);
+}
 // celular: o cabeçalho some ao rolar para baixo e volta ao subir (só se a página rolar de verdade)
 (function(){
  if(typeof window==='undefined'||!window.addEventListener||!window.matchMedia)return;
@@ -1428,6 +1721,10 @@ function setYear(y){S.y=y;render()}
  const mq=window.matchMedia('(max-width:980px)');
  window.addEventListener('scroll',function(){
   if(!mq.matches){document.body.classList.remove('topbarOculta');return}
+  const p=$('perfilBox'); if(p)p.classList.remove('on');      // rolando, o menu de perfil fecha
+  const e=$('exibBox'); if(e)e.classList.remove('on');        // ... e o de exibição da grade também
+  const l=$('linksBox'); if(l){l.classList.remove('on');      // ... e o de links externos também
+   const b=$('btnLinks'); if(b)b.setAttribute('aria-expanded','false')}
   const y=window.scrollY||0;
   if(y>140&&y>ultimo+8)document.body.classList.add('topbarOculta');   // descendo: some
   if(y<=8)document.body.classList.remove('topbarOculta');             // só reaparece no topo de cima
@@ -1557,7 +1854,8 @@ function renderOf(){
  const deps=[...new Set(all.map(o=>o.d))];
  const adm=canAdmin();
  $('ttl3').textContent='Lista de Oficiais';
- $('chBadge3').textContent='⛪ '+ch;
+ $('chBadge3').style.display=igrejaTravada()?'':'none';   // evita repetir o nome que já está no topo
+ $('chBadge3').textContent=' ⛪ '+ch;
  $('ofInfo').innerHTML='👥 <b>'+all.length+'</b> oficial'+(all.length===1?'':'es')+
    ' · <b>'+deps.length+'</b> departamento'+(deps.length===1?'':'s')+
    (q?' · <b>'+rows.length+'</b> resultado(s) para “'+escOf(q)+'”':'');
@@ -1842,7 +2140,8 @@ function renderProg(){
  const adm=canAdmin();
  const nIt=all.reduce((s,p)=>s+p.itens.length,0);
  $('ttl4').textContent='Programação';
- $('chBadge4').textContent='⛪ '+ch;
+ $('chBadge4').style.display=igrejaTravada()?'':'none';   // evita repetir o nome que já está no topo
+ $('chBadge4').textContent=' ⛪ '+ch;
  $('pgInfo').innerHTML='📅 <b>'+all.length+'</b> '+(all.length===1?'programação':'programações')+
    ' · <b>'+nIt+'</b> '+(nIt===1?'atividade':'atividades')+
    (q?' · <b>'+base.length+'</b> resultado(s) para “'+escOf(q)+'”':'');
@@ -1968,10 +2267,32 @@ function render(){
  document.body.classList.toggle('semSide',!cal);
  if(cal) renderCal(); else if(ofi) renderOf(); else renderProg();
 }
+/* nome/login de quem está usando, guardado num só lugar */
+function renderPerfil(){
+ const b=$('btnPerfil'); if(!b)return;
+ const nome=(SBPERFIL&&(SBPERFIL.nome||SBPERFIL.login))||S.lider||'';
+ const papel=ROLES[S.role].badge.replace(/^\S+\s*/,'');       // tira o emoji na frente
+ b.setAttribute('aria-label',nome?('Perfil – entrado como '+nome+(papel?' · '+papel:'')):'Perfil e conta');
+ dicaPerfil(b);
+}
+/* a cartinha de permissão (cargo + o que cada um pode fazer) abre ao passar o mouse no 👤 */
+function dicaPerfil(b){
+ if(b._dica)return; b._dica=1;
+ const tip=$('perfTip'); if(!tip)return;
+ const abre=function(){tip.classList.add('on');tip.setAttribute('aria-hidden','false')},
+       fecha=function(){tip.classList.remove('on');tip.setAttribute('aria-hidden','true')};
+ b.addEventListener('mouseenter',abre);
+ b.addEventListener('mouseleave',fecha);
+ b.addEventListener('focus',abre);
+ b.addEventListener('blur',fecha);
+ b.addEventListener('click',fecha);          // clicou e abriu o menu de perfil: a dica some
+}
+
 function renderTop(){
  const t=MESES[S.m]+' de '+S.y;
  $('ttl').textContent=t;
  const ch=S.church||'—';
+ renderPerfil();
  $('chSel').style.display=igrejaTravada()?'none':'';
  // seletor do Admin Local: aparece só no nível Admin Local (cada igreja tem o seu)
  const al=$('alSel');
@@ -1998,8 +2319,26 @@ function renderTop(){
        : '<option value="">— nenhum líder cadastrado nesta igreja —</option>';
    }
  }else ld.style.display='none';
- $('chBadge').textContent='⛪ '+ch;
+ // o nome da igreja aparece UMA vez só: o seletor do topo (o selo saiu da barra do mês)
+ if($('chBadge')){
+  $('chBadge').style.display=igrejaTravada()?'':'none';
+  $('chBadge').textContent=' ⛪ '+ch;
+ }
  $('printSub').textContent=(S.church||'')+' · '+t+' · Agenda gerada em '+new Date().toLocaleDateString('pt-BR');
+}
+/* ⚙ Gerenciar agendas: no desktop fica dentro de ADMINISTRAÇÃO (acima dos outros botões);
+   no celular volta para o lado do título AGENDAS – é o mesmo botão, só muda de lugar */
+function posBtnDeps(){
+ const b=$('btnDeps'); if(!b)return;
+ const cel=!!(window.matchMedia&&window.matchMedia('(max-width:980px)').matches);
+ const alvo=cel?document.querySelector('.agh'):$('admBox');
+ if(!alvo||b.parentNode===alvo)return;
+ if(cel)alvo.appendChild(b); else alvo.insertBefore(b,alvo.firstChild);
+}
+if(window.matchMedia){                                  /* troca de janela grande -> celular e vice-versa */
+ const mqDeps=window.matchMedia('(max-width:980px)');
+ if(mqDeps.addEventListener)mqDeps.addEventListener('change',posBtnDeps);
+ else if(mqDeps.addListener)mqDeps.addListener(posBtnDeps);
 }
 function renderSide(){
  // 6c: do (ano inicial ou atual −2) até (ano inicial ou atual +2): as setas podem ir além e o seletor acompanha
@@ -2019,26 +2358,26 @@ function renderSide(){
  let g='';
  if(S.mod==='pastoral'){
    const past=DEPTS.filter(d=>d.past).map(d=>d.id);
-   g+=gHead('Pastor Distrital',past);
+   g+=gHead('Pastor Distrital');
    g+=DEPTS.filter(d=>d.past).map(agRow).join('');
  }else if(S.mod==='assoc'){
    const ac=DEPTS.filter(d=>d.assoc);
-   if(ac.length){g+=gHead('ANP – Associação',ac.map(d=>d.id));g+=ac.map(agRow).join('')}
+   if(ac.length){g+=gHead('ANP – Associação');g+=ac.map(agRow).join('')}
  }else{
    const deps=DEPTS.filter(d=>!d.past&&!d.assoc).map(d=>d.id);
    const past=DEPTS.filter(d=>d.past).map(d=>d.id);
    const ac=DEPTS.filter(d=>d.assoc);
-   g+=gHead('ESCALAS',deps);
+   g+=gHead('Filtro Escalas');
    g+=DEPTS.filter(d=>!d.past&&!d.assoc).map(agRow).join('');
-   g+=gHead('Agenda Pastoral',past);
+   g+=gHead('Agenda Pastoral');
    g+=DEPTS.filter(d=>d.past).map(agRow).join('');
-   if(ac.length){g+=gHead('Agenda Associação',ac.map(d=>d.id));g+=ac.map(agRow).join('')}
+   if(ac.length){g+=gHead('Agenda Associação');g+=ac.map(agRow).join('')}
  }
  if(!g)g='<p class="sub">Nenhuma agenda neste módulo. Use o ⚙ Gerenciar agendas para marcar uma agenda como Agenda Pastoral ou Agenda Associação.</p>'
  $('agList').innerHTML=g;
  const isAdmin=canAdmin();
+ posBtnDeps();
  $('btnDeps').style.display=isAdmin?'':'none';
- $('depHint').style.display=isAdmin?'':'none';
  // caixa de administração (cadastrar usuário / igreja)
  const adm=$('admBox');
  if(isDistAdmin()){adm.style.display='';$('btnNewCh').style.display='';}
@@ -2057,9 +2396,10 @@ function renderSide(){
      : ('Edita somente as agendas em que é líder: '+nomes+' – as demais são só visualização');
    cls=(u&&nomes)?'':'view';
  }
- $('meBox').innerHTML=`<div class="who">${r.badge}</div>
+ const info=`<div class="who">${r.badge}</div>
    <div class="perm ${cls}">${escOf(perm)}</div>
    <div style="color:var(--dim);font-size:12.5px;margin-top:4px">${canEditAny()?'Clique num dia para criar a escala.':'Clique nos dias apenas para ver.'}</div>`;
+ if($('perfTip'))$('perfTip').innerHTML=info;
  $('btnNew').style.display=canEditAny()?'':'none';
 }
 function agRow(d){
@@ -2067,17 +2407,8 @@ function agRow(d){
  return `<div class="ag ${on?'on':''}" style="--c:${d.c}" onclick="tog('${d.id}')" title="${escOf(d.full||d.n)}">
    <div class="box"></div><span>${escOf(d.n)}</span></div>`;
 }
-function gHead(label,ids){
- const all=ids.length>0&&ids.every(id=>S.on.has(id));
- return `<div class="ghead"><span>${label}</span>
-   <button class="gtog ${all?'on':''}" onclick="event.stopPropagation();togGroup('${ids.join(',')}')">
-   ${all?'✔ Todos':'Selecionar'}</button></div>`;
-}
-function togGroup(str){
- const ids=str.split(',');
- const all=ids.every(id=>S.on.has(id));
- ids.forEach(id=>all?S.on.delete(id):S.on.add(id));
- renderSide();renderCal();
+function gHead(label){
+ return `<div class="ghead"><span>${label}</span></div>`;
 }
 /* ---------- gerenciar departamentos (admin) ---------- */
 const PALETTE=['#2F8CFF','#8B5CF6','#3DDC97','#FF8C1A','#FF5C5C','#FFC93C','#00D1C1','#FF5CA8','#E879F9','#A78BFA','#F97316','#22D3EE','#F472B6','#84CC16'];
@@ -2297,7 +2628,7 @@ function renderCal(){
    g+=`<div class="cell${cls}${sm}${off?' off':''}" data-d="${key}"`+
       ` ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropEv(event)"`+
       (off?'':` onclick="novo('${key}')"`)+`>`+     // > fecha a tag da célula (sem ele as pills saem do dia)
-        `<div class="dnum ${key===tk?'today':''}">${dt.getDate()}</div>${pills}`+
+        `<div class="dnum ${key===tk?'today':''}">${pad(dt.getDate())}<span class="mes">.${MESES3[dt.getMonth()]}</span></div>${pills}`+
         (off?'':`<div class="hintday">＋</div>`)+`</div>`;
  }
  $('grid').innerHTML=g;
@@ -2605,7 +2936,9 @@ async function sbEntrou(sess){
  if($('loginOvl'))$('loginOvl').classList.remove('on');
  if($('roleSel'))$('roleSel').style.display='none';          // o papel vem do cadastro
  const q=$('sbQuem'); if(q){q.style.display='';q.textContent=(perfil.nome||perfil.login)+' · '+ROLES[S.role].badge}
+ renderPerfil();                         // 👤 no topo passa a mostrar o nome/login
  const b=$('btnSair'); if(b)b.style.display='';
+ const b2=$('btnSair2'); if(b2)b2.style.display='';    // 🚪 Sair da barra do celular
  renderChurches();
  const ig=perfil.igreja&&perfil.igreja.name;
  if(ig&&CHURCHES.includes(ig))pickChurch(ig);                // entra direto na igreja do perfil
@@ -2653,6 +2986,7 @@ document.addEventListener('keydown',e=>{
 
 /* ---------- start ---------- */
 initTheme();
+initZoom();
 loadOf();
 loadPg();
 renderChurches();

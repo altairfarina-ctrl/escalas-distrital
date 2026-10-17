@@ -14,3 +14,6 @@ gerenciar_*.png
 assoc_escalas.png
 oficiais_colar.txt
 .vscode/
+
+# Artefatos locais de teste (o site publicado é só o index.html)
+_celular.html
